@@ -49,6 +49,42 @@ export type Database = {
           },
         ]
       }
+      recipe_sections: {
+        Row: {
+          created_at: string
+          id: string
+          recipe_id: string
+          section_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          recipe_id: string
+          section_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          recipe_id?: string
+          section_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_sections_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipe_sections_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recipes: {
         Row: {
           category: string
@@ -126,6 +162,69 @@ export type Database = {
           id?: string
           name?: string
           sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          accent_color: string
+          background_color: string
+          created_at: string
+          favicon_url: string | null
+          font_body: string
+          font_display: string
+          foreground_color: string
+          hero_subtitle: string
+          hero_title: string
+          id: string
+          logo_url: string | null
+          meta_description: string
+          primary_color: string
+          singleton: boolean
+          site_name: string
+          spice_color: string
+          tagline: string
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string
+          background_color?: string
+          created_at?: string
+          favicon_url?: string | null
+          font_body?: string
+          font_display?: string
+          foreground_color?: string
+          hero_subtitle?: string
+          hero_title?: string
+          id?: string
+          logo_url?: string | null
+          meta_description?: string
+          primary_color?: string
+          singleton?: boolean
+          site_name?: string
+          spice_color?: string
+          tagline?: string
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string
+          background_color?: string
+          created_at?: string
+          favicon_url?: string | null
+          font_body?: string
+          font_display?: string
+          foreground_color?: string
+          hero_subtitle?: string
+          hero_title?: string
+          id?: string
+          logo_url?: string | null
+          meta_description?: string
+          primary_color?: string
+          singleton?: boolean
+          site_name?: string
+          spice_color?: string
+          tagline?: string
           updated_at?: string
         }
         Relationships: []

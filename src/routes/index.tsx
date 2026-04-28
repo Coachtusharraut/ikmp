@@ -8,13 +8,18 @@ import { Button } from "@/components/ui/button";
 import { Search, Sparkles } from "lucide-react";
 import type { Recipe } from "@/lib/types";
 import { useAuth } from "@/lib/auth";
+import { useSiteSettings } from "@/lib/site-settings";
 
 export const Route = createFileRoute("/")({
   component: Home,
 });
 
+type SectionRow = { id: string; name: string; sort_order: number };
+type RecipeSectionLink = { recipe_id: string; section_id: string };
+
 function Home() {
   const { user } = useAuth();
+  const settings = useSiteSettings();
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string>("All");
 
@@ -36,32 +41,52 @@ function Home() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sections")
-        .select("name")
+        .select("id,name,sort_order")
         .order("sort_order", { ascending: true });
       if (error) throw error;
-      return data as { name: string }[];
+      return data as SectionRow[];
     },
     enabled: !!user,
   });
 
-  const categories = useMemo(() => {
-    const ordered: string[] = ["All"];
-    const seen = new Set<string>(["All"]);
-    sections.forEach((x) => { if (!seen.has(x.name)) { ordered.push(x.name); seen.add(x.name); } });
-    recipes.forEach((r) => { if (!seen.has(r.category)) { ordered.push(r.category); seen.add(r.category); } });
-    return ordered;
-  }, [recipes, sections]);
+  const { data: links = [] } = useQuery({
+    queryKey: ["recipe_sections"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("recipe_sections")
+        .select("recipe_id,section_id");
+      if (error) throw error;
+      return data as RecipeSectionLink[];
+    },
+    enabled: !!user,
+  });
+
+  const sectionsByRecipe = useMemo(() => {
+    const map = new Map<string, Set<string>>();
+    links.forEach((l) => {
+      if (!map.has(l.recipe_id)) map.set(l.recipe_id, new Set());
+      map.get(l.recipe_id)!.add(l.section_id);
+    });
+    return map;
+  }, [links]);
+
+  const categories = useMemo(() => ["All", ...sections.map((s) => s.name)], [sections]);
 
   const filtered = useMemo(() => {
+    const targetSection = sections.find((s) => s.name === cat);
     return recipes.filter((r) => {
-      const okCat = cat === "All" || r.category === cat;
+      const okCat =
+        cat === "All" ||
+        (targetSection && sectionsByRecipe.get(r.id)?.has(targetSection.id)) ||
+        // legacy fallback for recipes still using the old single category text
+        r.category === cat;
       const okQ =
         !q ||
         r.name.toLowerCase().includes(q.toLowerCase()) ||
         r.description?.toLowerCase().includes(q.toLowerCase());
       return okCat && okQ;
     });
-  }, [recipes, q, cat]);
+  }, [recipes, sections, sectionsByRecipe, q, cat]);
 
   return (
     <div>
@@ -69,17 +94,13 @@ function Home() {
       <section className="container mx-auto px-4 pt-12 pb-10">
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-spice mb-4">
-            <Sparkles className="size-3.5" /> @coachtusharraut · Holistic Health
+            <Sparkles className="size-3.5" /> {settings.site_name} · {settings.tagline}
           </div>
           <h1 className="font-display text-5xl md:text-6xl font-semibold leading-[1.05] tracking-tight">
-            Indian Kitchen
-            <br />
-            <span className="text-spice italic">Meal Plan.</span>
+            {settings.hero_title}
           </h1>
           <p className="mt-5 text-lg text-muted-foreground max-w-xl">
-            Lose weight and feel your best with Coach Tushar's hand-picked Indian
-            recipes, weekly meal plans and an auto-generated grocery list — scaled
-            to your servings.
+            {settings.hero_subtitle}
           </p>
           {!user && (
             <div className="mt-7 flex gap-3">

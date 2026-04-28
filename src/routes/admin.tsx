@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -8,24 +8,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Pencil, Plus, Trash2, ShieldCheck, FolderPlus } from "lucide-react";
+import { Pencil, Plus, Trash2, ShieldCheck, FolderPlus, Upload, Palette } from "lucide-react";
 import { toast } from "sonner";
 import type { Recipe, Ingredient } from "@/lib/types";
 
 type Section = { id: string; name: string; description: string | null; sort_order: number };
+type RecipeSectionLink = { recipe_id: string; section_id: string };
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -49,6 +43,7 @@ function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Partial<Recipe> | null>(null);
+  const [editingSectionIds, setEditingSectionIds] = useState<string[]>([]);
 
   const { data: recipes = [], isLoading } = useQuery({
     queryKey: ["admin_recipes"],
@@ -76,12 +71,36 @@ function AdminPage() {
     enabled: !!isAdmin,
   });
 
+  const { data: links = [] } = useQuery({
+    queryKey: ["admin_recipe_sections"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("recipe_sections")
+        .select("recipe_id,section_id");
+      if (error) throw error;
+      return data as RecipeSectionLink[];
+    },
+    enabled: !!isAdmin,
+  });
+
+  function openEditor(r: Partial<Recipe> | null) {
+    if (r?.id) {
+      const ids = links.filter((l) => l.recipe_id === r.id).map((l) => l.section_id);
+      setEditingSectionIds(ids);
+    } else {
+      setEditingSectionIds(sections.length ? [sections[0].id] : []);
+    }
+    setEditing(r);
+  }
+
   const save = useMutation({
-    mutationFn: async (r: Partial<Recipe>) => {
+    mutationFn: async ({ r, sectionIds }: { r: Partial<Recipe>; sectionIds: string[] }) => {
+      const primarySectionName =
+        sections.find((s) => s.id === sectionIds[0])?.name ?? r.category ?? "Main Course";
       const payload = {
         name: r.name!,
         description: r.description ?? null,
-        category: r.category ?? "Main Course",
+        category: primarySectionName,
         cuisine: r.cuisine ?? "Indian",
         image_url: r.image_url || null,
         prep_time_min: Number(r.prep_time_min) || 0,
@@ -91,13 +110,24 @@ function AdminPage() {
         ingredients: (r.ingredients ?? []) as any,
         is_global: true,
       };
-      if (r.id) {
-        const { error } = await supabase.from("recipes").update(payload).eq("id", r.id);
+      let recipeId = r.id;
+      if (recipeId) {
+        const { error } = await supabase.from("recipes").update(payload).eq("id", recipeId);
         if (error) throw error;
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from("recipes")
-          .insert({ ...payload, created_by: user!.id });
+          .insert({ ...payload, created_by: user!.id })
+          .select("id")
+          .single();
+        if (error) throw error;
+        recipeId = data.id;
+      }
+      // Sync sections: replace all links for this recipe
+      await supabase.from("recipe_sections").delete().eq("recipe_id", recipeId!);
+      if (sectionIds.length) {
+        const rows = sectionIds.map((sid) => ({ recipe_id: recipeId!, section_id: sid }));
+        const { error } = await supabase.from("recipe_sections").insert(rows);
         if (error) throw error;
       }
     },
@@ -105,7 +135,9 @@ function AdminPage() {
       toast.success("Recipe saved");
       setEditing(null);
       qc.invalidateQueries({ queryKey: ["admin_recipes"] });
+      qc.invalidateQueries({ queryKey: ["admin_recipe_sections"] });
       qc.invalidateQueries({ queryKey: ["recipes"] });
+      qc.invalidateQueries({ queryKey: ["recipe_sections"] });
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -141,26 +173,44 @@ function AdminPage() {
 
   return (
     <div className="container mx-auto px-4 py-10 space-y-12">
+      {/* Site settings */}
+      <div>
+        <div className="flex items-end justify-between gap-4 mb-6 flex-wrap">
+          <div>
+            <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-spice mb-1">
+              <Palette className="size-3.5" /> Branding
+            </div>
+            <h1 className="font-display text-4xl font-semibold">Site settings</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Customise the name, tagline, hero copy, logo, favicon and theme colours — applied across the entire site.
+            </p>
+          </div>
+        </div>
+        <SiteSettingsManager />
+      </div>
+
+      {/* Sections */}
       <div>
         <div className="flex items-end justify-between gap-4 mb-6 flex-wrap">
           <div>
             <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-spice mb-1">
               <ShieldCheck className="size-3.5" /> Admin
             </div>
-            <h1 className="font-display text-4xl font-semibold">Manage sections</h1>
+            <h2 className="font-display text-3xl font-semibold">Manage sections</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Create categories like Veg, Non-Veg or Quick Smoothies. Recipes are organised by section.
+              Recipes can belong to multiple sections (e.g. Veg + Quick Smoothies).
             </p>
           </div>
         </div>
         <SectionsManager sections={sections} />
       </div>
 
+      {/* Recipes */}
       <div>
         <div className="flex items-end justify-between gap-4 mb-6 flex-wrap">
           <h2 className="font-display text-3xl font-semibold">Manage recipes</h2>
           <Button
-            onClick={() => setEditing({ ...empty, category: sections[0]?.name ?? "Veg" })}
+            onClick={() => openEditor(empty)}
             className="bg-spice text-spice-foreground hover:bg-spice/90"
           >
             <Plus className="size-4 mr-2" /> New recipe
@@ -176,47 +226,55 @@ function AdminPage() {
                 <tr>
                   <th className="p-3 w-16"></th>
                   <th className="p-3">Name</th>
-                  <th className="p-3 hidden sm:table-cell">Section</th>
+                  <th className="p-3 hidden sm:table-cell">Sections</th>
                   <th className="p-3 hidden md:table-cell">Time</th>
                   <th className="p-3 hidden md:table-cell">Servings</th>
                   <th className="p-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {recipes.map((r) => (
-                  <tr key={r.id} className="hover:bg-accent/20">
-                    <td className="p-2">
-                      <div className="size-12 rounded-lg overflow-hidden bg-muted">
-                        {r.image_url && (
-                          <img src={r.image_url} alt={r.name} className="w-full h-full object-cover" />
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-3 font-medium">{r.name}</td>
-                    <td className="p-3 hidden sm:table-cell text-muted-foreground">{r.category}</td>
-                    <td className="p-3 hidden md:table-cell text-muted-foreground">
-                      {r.prep_time_min + r.cook_time_min} min
-                    </td>
-                    <td className="p-3 hidden md:table-cell text-muted-foreground">
-                      {r.default_servings}
-                    </td>
-                    <td className="p-3 text-right">
-                      <Button size="icon" variant="ghost" onClick={() => setEditing(r)}>
-                        <Pencil className="size-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="text-destructive"
-                        onClick={() => {
-                          if (confirm(`Delete "${r.name}"?`)) remove.mutate(r.id);
-                        }}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
+                {recipes.map((r) => {
+                  const recipeSectionNames = links
+                    .filter((l) => l.recipe_id === r.id)
+                    .map((l) => sections.find((s) => s.id === l.section_id)?.name)
+                    .filter(Boolean) as string[];
+                  return (
+                    <tr key={r.id} className="hover:bg-accent/20">
+                      <td className="p-2">
+                        <div className="size-12 rounded-lg overflow-hidden bg-muted">
+                          {r.image_url && (
+                            <img src={r.image_url} alt={r.name} className="w-full h-full object-cover" />
+                          )}
+                        </div>
+                      </td>
+                      <td className="p-3 font-medium">{r.name}</td>
+                      <td className="p-3 hidden sm:table-cell text-muted-foreground">
+                        {recipeSectionNames.length ? recipeSectionNames.join(", ") : r.category}
+                      </td>
+                      <td className="p-3 hidden md:table-cell text-muted-foreground">
+                        {r.prep_time_min + r.cook_time_min} min
+                      </td>
+                      <td className="p-3 hidden md:table-cell text-muted-foreground">
+                        {r.default_servings}
+                      </td>
+                      <td className="p-3 text-right">
+                        <Button size="icon" variant="ghost" onClick={() => openEditor(r)}>
+                          <Pencil className="size-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="text-destructive"
+                          onClick={() => {
+                            if (confirm(`Delete "${r.name}"?`)) remove.mutate(r.id);
+                          }}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -226,29 +284,36 @@ function AdminPage() {
       <RecipeEditorDialog
         value={editing}
         sections={sections}
+        selectedSectionIds={editingSectionIds}
+        setSelectedSectionIds={setEditingSectionIds}
         onClose={() => setEditing(null)}
-        onSave={(r) => save.mutate(r)}
+        onSave={(r) => save.mutate({ r, sectionIds: editingSectionIds })}
         saving={save.isPending}
       />
     </div>
   );
 }
 
+/* ─────────────────────────── Recipe editor ─────────────────────────── */
+
 function RecipeEditorDialog({
   value,
   sections,
+  selectedSectionIds,
+  setSelectedSectionIds,
   onClose,
   onSave,
   saving,
 }: {
   value: Partial<Recipe> | null;
   sections: Section[];
+  selectedSectionIds: string[];
+  setSelectedSectionIds: (ids: string[]) => void;
   onClose: () => void;
   onSave: (r: Partial<Recipe>) => void;
   saving: boolean;
 }) {
   const [r, setR] = useState<Partial<Recipe>>(value ?? {});
-  // Sync when value changes
   useStateSync(value, setR);
 
   if (!value) return null;
@@ -264,6 +329,27 @@ function RecipeEditorDialog({
     update("ingredients", next as any);
   }
 
+  function toggleSection(id: string) {
+    setSelectedSectionIds(
+      selectedSectionIds.includes(id)
+        ? selectedSectionIds.filter((x) => x !== id)
+        : [...selectedSectionIds, id]
+    );
+  }
+
+  async function uploadImage(file: File) {
+    const ext = file.name.split(".").pop();
+    const path = `recipes/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from("branding").upload(path, file, { upsert: true });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    const { data } = supabase.storage.from("branding").getPublicUrl(path);
+    update("image_url", data.publicUrl);
+    toast.success("Image uploaded");
+  }
+
   return (
     <Dialog open={!!value} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -274,11 +360,7 @@ function RecipeEditorDialog({
         <div className="space-y-4">
           <div>
             <Label>Name</Label>
-            <Input
-              value={r.name ?? ""}
-              onChange={(e) => update("name", e.target.value)}
-              className="mt-1.5"
-            />
+            <Input value={r.name ?? ""} onChange={(e) => update("name", e.target.value)} className="mt-1.5" />
           </div>
           <div>
             <Label>Description</Label>
@@ -288,46 +370,66 @@ function RecipeEditorDialog({
               className="mt-1.5"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>Section</Label>
-              <Select
-                value={r.category ?? ""}
-                onValueChange={(v) => update("category", v)}
-              >
-                <SelectTrigger className="mt-1.5">
-                  <SelectValue placeholder="Choose a section" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sections.map((s) => (
-                    <SelectItem key={s.id} value={s.name}>
-                      {s.name}
-                    </SelectItem>
-                  ))}
-                  {r.category && !sections.find((s) => s.name === r.category) && (
-                    <SelectItem value={r.category}>{r.category} (legacy)</SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Cuisine</Label>
-              <Input
-                value={r.cuisine ?? ""}
-                onChange={(e) => update("cuisine", e.target.value)}
-                className="mt-1.5"
-              />
+
+          <div>
+            <Label>Sections (pick one or more)</Label>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {sections.map((s) => {
+                const active = selectedSectionIds.includes(s.id);
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => toggleSection(s.id)}
+                    className={
+                      "px-3 py-1.5 rounded-full text-xs font-medium border transition " +
+                      (active
+                        ? "bg-spice text-spice-foreground border-spice"
+                        : "bg-card text-muted-foreground hover:text-foreground")
+                    }
+                  >
+                    {s.name}
+                  </button>
+                );
+              })}
+              {sections.length === 0 && (
+                <p className="text-xs text-muted-foreground">Create a section first.</p>
+              )}
             </div>
           </div>
+
           <div>
-            <Label>Image URL</Label>
+            <Label>Cuisine</Label>
             <Input
-              value={r.image_url ?? ""}
-              onChange={(e) => update("image_url", e.target.value)}
-              placeholder="https://…"
+              value={r.cuisine ?? ""}
+              onChange={(e) => update("cuisine", e.target.value)}
               className="mt-1.5"
             />
           </div>
+
+          <div>
+            <Label>Image</Label>
+            <div className="flex gap-2 mt-1.5">
+              <Input
+                value={r.image_url ?? ""}
+                onChange={(e) => update("image_url", e.target.value)}
+                placeholder="Paste URL or upload →"
+              />
+              <label className="inline-flex items-center gap-1 px-3 rounded-md border bg-card cursor-pointer hover:bg-accent text-sm">
+                <Upload className="size-4" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0])}
+                />
+              </label>
+            </div>
+            {r.image_url && (
+              <img src={r.image_url} alt="" className="mt-2 h-24 rounded-lg object-cover" />
+            )}
+          </div>
+
           <div className="grid grid-cols-3 gap-3">
             <div>
               <Label>Prep (min)</Label>
@@ -374,10 +476,7 @@ function RecipeEditorDialog({
                 size="sm"
                 variant="outline"
                 onClick={() =>
-                  update("ingredients", [
-                    ...ingredients,
-                    { name: "", qty: 1, unit: "g" },
-                  ] as any)
+                  update("ingredients", [...ingredients, { name: "", qty: 1, unit: "g" }] as any)
                 }
               >
                 <Plus className="size-3.5 mr-1" /> Add
@@ -410,10 +509,7 @@ function RecipeEditorDialog({
                     variant="ghost"
                     className="col-span-1 text-destructive"
                     onClick={() =>
-                      update(
-                        "ingredients",
-                        ingredients.filter((_, j) => j !== i) as any
-                      )
+                      update("ingredients", ingredients.filter((_, j) => j !== i) as any)
                     }
                   >
                     <Trash2 className="size-4" />
@@ -441,14 +537,14 @@ function RecipeEditorDialog({
   );
 }
 
-// Sync helper
-import { useEffect } from "react";
 function useStateSync<T>(value: T | null, setter: (v: T) => void) {
   useEffect(() => {
     if (value) setter(value);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 }
+
+/* ─────────────────────────── Sections manager ─────────────────────────── */
 
 function SectionsManager({ sections }: { sections: Section[] }) {
   const qc = useQueryClient();
@@ -536,7 +632,7 @@ function SectionsManager({ sections }: { sections: Section[] }) {
               variant="ghost"
               className="size-6 text-destructive opacity-60 group-hover:opacity-100"
               onClick={() => {
-                if (confirm(`Delete section "${s.name}"? Recipes in it stay but become uncategorised.`))
+                if (confirm(`Delete section "${s.name}"? Recipes stay but lose this label.`))
                   removeSection.mutate(s.id);
               }}
             >
@@ -544,6 +640,212 @@ function SectionsManager({ sections }: { sections: Section[] }) {
             </Button>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────── Site settings manager ─────────────────────────── */
+
+type SiteSettingsRow = {
+  id: string;
+  site_name: string;
+  tagline: string;
+  hero_title: string;
+  hero_subtitle: string;
+  meta_description: string;
+  logo_url: string | null;
+  favicon_url: string | null;
+  primary_color: string;
+  spice_color: string;
+  background_color: string;
+  foreground_color: string;
+  accent_color: string;
+  font_display: string;
+  font_body: string;
+};
+
+function SiteSettingsManager() {
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin_site_settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("*")
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data as unknown as SiteSettingsRow;
+    },
+  });
+  const [s, setS] = useState<SiteSettingsRow | null>(null);
+  useEffect(() => {
+    if (data) setS(data);
+  }, [data]);
+
+  const save = useMutation({
+    mutationFn: async (next: SiteSettingsRow) => {
+      const { id, ...patch } = next;
+      const { error } = await supabase.from("site_settings").update(patch).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Settings saved");
+      qc.invalidateQueries({ queryKey: ["admin_site_settings"] });
+      qc.invalidateQueries({ queryKey: ["site_settings"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  async function uploadAsset(file: File, prefix: "logo" | "favicon"): Promise<string | null> {
+    const ext = file.name.split(".").pop();
+    const path = `${prefix}/${prefix}-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("branding").upload(path, file, { upsert: true });
+    if (error) {
+      toast.error(error.message);
+      return null;
+    }
+    const { data } = supabase.storage.from("branding").getPublicUrl(path);
+    return data.publicUrl;
+  }
+
+  if (isLoading || !s) return <div className="text-muted-foreground">Loading settings…</div>;
+
+  function up<K extends keyof SiteSettingsRow>(k: K, v: SiteSettingsRow[K]) {
+    setS((prev) => (prev ? { ...prev, [k]: v } : prev));
+  }
+
+  return (
+    <div className="bg-card border rounded-2xl p-6 space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <Label>Site name</Label>
+          <Input value={s.site_name} onChange={(e) => up("site_name", e.target.value)} className="mt-1.5" />
+        </div>
+        <div>
+          <Label>Tagline</Label>
+          <Input value={s.tagline} onChange={(e) => up("tagline", e.target.value)} className="mt-1.5" />
+        </div>
+        <div className="md:col-span-2">
+          <Label>Hero title</Label>
+          <Input value={s.hero_title} onChange={(e) => up("hero_title", e.target.value)} className="mt-1.5" />
+        </div>
+        <div className="md:col-span-2">
+          <Label>Hero subtitle</Label>
+          <Textarea
+            value={s.hero_subtitle}
+            onChange={(e) => up("hero_subtitle", e.target.value)}
+            className="mt-1.5"
+          />
+        </div>
+        <div className="md:col-span-2">
+          <Label>SEO meta description</Label>
+          <Textarea
+            value={s.meta_description}
+            onChange={(e) => up("meta_description", e.target.value)}
+            className="mt-1.5"
+          />
+        </div>
+      </div>
+
+      {/* Logo + favicon */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <AssetField
+          label="Logo"
+          url={s.logo_url}
+          onChangeUrl={(v) => up("logo_url", v)}
+          onUpload={(f) => uploadAsset(f, "logo").then((url) => url && up("logo_url", url))}
+        />
+        <AssetField
+          label="Favicon"
+          url={s.favicon_url}
+          onChangeUrl={(v) => up("favicon_url", v)}
+          onUpload={(f) => uploadAsset(f, "favicon").then((url) => url && up("favicon_url", url))}
+        />
+      </div>
+
+      {/* Theme colours */}
+      <div>
+        <Label className="mb-2 block">Theme colours (oklch values)</Label>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <ColorField label="Background" value={s.background_color} onChange={(v) => up("background_color", v)} />
+          <ColorField label="Foreground" value={s.foreground_color} onChange={(v) => up("foreground_color", v)} />
+          <ColorField label="Primary" value={s.primary_color} onChange={(v) => up("primary_color", v)} />
+          <ColorField label="Spice (accent)" value={s.spice_color} onChange={(v) => up("spice_color", v)} />
+          <ColorField label="Accent" value={s.accent_color} onChange={(v) => up("accent_color", v)} />
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-2 pt-2 border-t">
+        <Button
+          onClick={() => save.mutate(s)}
+          disabled={save.isPending}
+          className="bg-spice text-spice-foreground hover:bg-spice/90"
+        >
+          {save.isPending ? "Saving…" : "Save site settings"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function AssetField({
+  label,
+  url,
+  onChangeUrl,
+  onUpload,
+}: {
+  label: string;
+  url: string | null;
+  onChangeUrl: (v: string | null) => void;
+  onUpload: (file: File) => void;
+}) {
+  return (
+    <div>
+      <Label>{label}</Label>
+      <div className="flex gap-2 mt-1.5">
+        <Input
+          value={url ?? ""}
+          onChange={(e) => onChangeUrl(e.target.value || null)}
+          placeholder="Paste URL or upload →"
+        />
+        <label className="inline-flex items-center gap-1 px-3 rounded-md border bg-card cursor-pointer hover:bg-accent text-sm">
+          <Upload className="size-4" />
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0])}
+          />
+        </label>
+      </div>
+      {url && (
+        <img src={url} alt={label} className="mt-2 h-16 w-16 rounded-lg object-cover bg-muted" />
+      )}
+    </div>
+  );
+}
+
+function ColorField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div>
+      <Label className="text-xs">{label}</Label>
+      <div className="mt-1.5 flex items-center gap-2">
+        <div
+          className="size-9 rounded-md border shrink-0"
+          style={{ background: value }}
+          aria-hidden
+        />
+        <Input value={value} onChange={(e) => onChange(e.target.value)} className="font-mono text-xs" />
       </div>
     </div>
   );
