@@ -290,12 +290,25 @@ function RecipeEditorDialog({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Category</Label>
-              <Input
+              <Label>Section</Label>
+              <Select
                 value={r.category ?? ""}
-                onChange={(e) => update("category", e.target.value)}
-                className="mt-1.5"
-              />
+                onValueChange={(v) => update("category", v)}
+              >
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue placeholder="Choose a section" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sections.map((s) => (
+                    <SelectItem key={s.id} value={s.name}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                  {r.category && !sections.find((s) => s.name === r.category) && (
+                    <SelectItem value={r.category}>{r.category} (legacy)</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>Cuisine</Label>
