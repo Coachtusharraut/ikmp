@@ -8,15 +8,24 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Pencil, Plus, Trash2, ShieldCheck } from "lucide-react";
+import { Pencil, Plus, Trash2, ShieldCheck, FolderPlus } from "lucide-react";
 import { toast } from "sonner";
 import type { Recipe, Ingredient } from "@/lib/types";
+
+type Section = { id: string; name: string; description: string | null; sort_order: number };
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -50,6 +59,19 @@ function AdminPage() {
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as unknown as Recipe[];
+    },
+    enabled: !!isAdmin,
+  });
+
+  const { data: sections = [] } = useQuery({
+    queryKey: ["admin_sections"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sections")
+        .select("*")
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return data as Section[];
     },
     enabled: !!isAdmin,
   });
@@ -118,79 +140,92 @@ function AdminPage() {
     );
 
   return (
-    <div className="container mx-auto px-4 py-10">
-      <div className="flex items-end justify-between gap-4 mb-8 flex-wrap">
-        <div>
-          <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-spice mb-1">
-            <ShieldCheck className="size-3.5" /> Admin
+    <div className="container mx-auto px-4 py-10 space-y-12">
+      <div>
+        <div className="flex items-end justify-between gap-4 mb-6 flex-wrap">
+          <div>
+            <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-spice mb-1">
+              <ShieldCheck className="size-3.5" /> Admin
+            </div>
+            <h1 className="font-display text-4xl font-semibold">Manage sections</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Create categories like Veg, Non-Veg or Quick Smoothies. Recipes are organised by section.
+            </p>
           </div>
-          <h1 className="font-display text-4xl font-semibold">Manage recipes</h1>
         </div>
-        <Button
-          onClick={() => setEditing({ ...empty })}
-          className="bg-spice text-spice-foreground hover:bg-spice/90"
-        >
-          <Plus className="size-4 mr-2" /> New recipe
-        </Button>
+        <SectionsManager sections={sections} />
       </div>
 
-      {isLoading ? (
-        <div className="text-muted-foreground">Loading…</div>
-      ) : (
-        <div className="bg-card border rounded-2xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
-              <tr>
-                <th className="p-3 w-16"></th>
-                <th className="p-3">Name</th>
-                <th className="p-3 hidden sm:table-cell">Category</th>
-                <th className="p-3 hidden md:table-cell">Time</th>
-                <th className="p-3 hidden md:table-cell">Servings</th>
-                <th className="p-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {recipes.map((r) => (
-                <tr key={r.id} className="hover:bg-accent/20">
-                  <td className="p-2">
-                    <div className="size-12 rounded-lg overflow-hidden bg-muted">
-                      {r.image_url && (
-                        <img src={r.image_url} alt={r.name} className="w-full h-full object-cover" />
-                      )}
-                    </div>
-                  </td>
-                  <td className="p-3 font-medium">{r.name}</td>
-                  <td className="p-3 hidden sm:table-cell text-muted-foreground">{r.category}</td>
-                  <td className="p-3 hidden md:table-cell text-muted-foreground">
-                    {r.prep_time_min + r.cook_time_min} min
-                  </td>
-                  <td className="p-3 hidden md:table-cell text-muted-foreground">
-                    {r.default_servings}
-                  </td>
-                  <td className="p-3 text-right">
-                    <Button size="icon" variant="ghost" onClick={() => setEditing(r)}>
-                      <Pencil className="size-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="text-destructive"
-                      onClick={() => {
-                        if (confirm(`Delete "${r.name}"?`)) remove.mutate(r.id);
-                      }}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div>
+        <div className="flex items-end justify-between gap-4 mb-6 flex-wrap">
+          <h2 className="font-display text-3xl font-semibold">Manage recipes</h2>
+          <Button
+            onClick={() => setEditing({ ...empty, category: sections[0]?.name ?? "Veg" })}
+            className="bg-spice text-spice-foreground hover:bg-spice/90"
+          >
+            <Plus className="size-4 mr-2" /> New recipe
+          </Button>
         </div>
-      )}
+
+        {isLoading ? (
+          <div className="text-muted-foreground">Loading…</div>
+        ) : (
+          <div className="bg-card border rounded-2xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="p-3 w-16"></th>
+                  <th className="p-3">Name</th>
+                  <th className="p-3 hidden sm:table-cell">Section</th>
+                  <th className="p-3 hidden md:table-cell">Time</th>
+                  <th className="p-3 hidden md:table-cell">Servings</th>
+                  <th className="p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {recipes.map((r) => (
+                  <tr key={r.id} className="hover:bg-accent/20">
+                    <td className="p-2">
+                      <div className="size-12 rounded-lg overflow-hidden bg-muted">
+                        {r.image_url && (
+                          <img src={r.image_url} alt={r.name} className="w-full h-full object-cover" />
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-3 font-medium">{r.name}</td>
+                    <td className="p-3 hidden sm:table-cell text-muted-foreground">{r.category}</td>
+                    <td className="p-3 hidden md:table-cell text-muted-foreground">
+                      {r.prep_time_min + r.cook_time_min} min
+                    </td>
+                    <td className="p-3 hidden md:table-cell text-muted-foreground">
+                      {r.default_servings}
+                    </td>
+                    <td className="p-3 text-right">
+                      <Button size="icon" variant="ghost" onClick={() => setEditing(r)}>
+                        <Pencil className="size-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="text-destructive"
+                        onClick={() => {
+                          if (confirm(`Delete "${r.name}"?`)) remove.mutate(r.id);
+                        }}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       <RecipeEditorDialog
         value={editing}
+        sections={sections}
         onClose={() => setEditing(null)}
         onSave={(r) => save.mutate(r)}
         saving={save.isPending}
@@ -201,11 +236,13 @@ function AdminPage() {
 
 function RecipeEditorDialog({
   value,
+  sections,
   onClose,
   onSave,
   saving,
 }: {
   value: Partial<Recipe> | null;
+  sections: Section[];
   onClose: () => void;
   onSave: (r: Partial<Recipe>) => void;
   saving: boolean;
@@ -253,12 +290,25 @@ function RecipeEditorDialog({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Category</Label>
-              <Input
+              <Label>Section</Label>
+              <Select
                 value={r.category ?? ""}
-                onChange={(e) => update("category", e.target.value)}
-                className="mt-1.5"
-              />
+                onValueChange={(v) => update("category", v)}
+              >
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue placeholder="Choose a section" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sections.map((s) => (
+                    <SelectItem key={s.id} value={s.name}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                  {r.category && !sections.find((s) => s.name === r.category) && (
+                    <SelectItem value={r.category}>{r.category} (legacy)</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>Cuisine</Label>
@@ -398,4 +448,103 @@ function useStateSync<T>(value: T | null, setter: (v: T) => void) {
     if (value) setter(value);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
+}
+
+function SectionsManager({ sections }: { sections: Section[] }) {
+  const qc = useQueryClient();
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+
+  const addSection = useMutation({
+    mutationFn: async () => {
+      const trimmed = name.trim();
+      if (!trimmed) throw new Error("Name is required");
+      const nextOrder = (sections.at(-1)?.sort_order ?? 0) + 1;
+      const { error } = await supabase
+        .from("sections")
+        .insert({ name: trimmed, description: description.trim() || null, sort_order: nextOrder });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Section added");
+      setName("");
+      setDescription("");
+      qc.invalidateQueries({ queryKey: ["admin_sections"] });
+      qc.invalidateQueries({ queryKey: ["sections"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const removeSection = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("sections").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Section deleted");
+      qc.invalidateQueries({ queryKey: ["admin_sections"] });
+      qc.invalidateQueries({ queryKey: ["sections"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  return (
+    <div className="bg-card border rounded-2xl p-5 space-y-5">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr_auto] gap-3 items-end">
+        <div>
+          <Label>New section name</Label>
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. High-Protein"
+            className="mt-1.5"
+          />
+        </div>
+        <div>
+          <Label>Description (optional)</Label>
+          <Input
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Short summary"
+            className="mt-1.5"
+          />
+        </div>
+        <Button
+          onClick={() => addSection.mutate()}
+          disabled={addSection.isPending || !name.trim()}
+          className="bg-spice text-spice-foreground hover:bg-spice/90"
+        >
+          <FolderPlus className="size-4 mr-2" /> Add section
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {sections.length === 0 && (
+          <p className="text-sm text-muted-foreground">No sections yet — add your first one above.</p>
+        )}
+        {sections.map((s) => (
+          <div
+            key={s.id}
+            className="group inline-flex items-center gap-2 bg-muted/40 border rounded-full pl-3 pr-1 py-1 text-sm"
+          >
+            <span className="font-medium">{s.name}</span>
+            {s.description && (
+              <span className="text-muted-foreground hidden sm:inline">· {s.description}</span>
+            )}
+            <Button
+              size="icon"
+              variant="ghost"
+              className="size-6 text-destructive opacity-60 group-hover:opacity-100"
+              onClick={() => {
+                if (confirm(`Delete section "${s.name}"? Recipes in it stay but become uncategorised.`))
+                  removeSection.mutate(s.id);
+              }}
+            >
+              <Trash2 className="size-3.5" />
+            </Button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

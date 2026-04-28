@@ -28,14 +28,29 @@ function Home() {
       if (error) throw error;
       return data as unknown as Recipe[];
     },
-    enabled: !!user, // only load when authenticated (RLS requires auth)
+    enabled: !!user,
+  });
+
+  const { data: sections = [] } = useQuery({
+    queryKey: ["sections"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sections")
+        .select("name")
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return data as { name: string }[];
+    },
+    enabled: !!user,
   });
 
   const categories = useMemo(() => {
-    const s = new Set<string>();
-    recipes.forEach((r) => s.add(r.category));
-    return ["All", ...Array.from(s)];
-  }, [recipes]);
+    const ordered: string[] = ["All"];
+    const seen = new Set<string>(["All"]);
+    sections.forEach((x) => { if (!seen.has(x.name)) { ordered.push(x.name); seen.add(x.name); } });
+    recipes.forEach((r) => { if (!seen.has(r.category)) { ordered.push(r.category); seen.add(r.category); } });
+    return ordered;
+  }, [recipes, sections]);
 
   const filtered = useMemo(() => {
     return recipes.filter((r) => {
@@ -54,16 +69,17 @@ function Home() {
       <section className="container mx-auto px-4 pt-12 pb-10">
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-spice mb-4">
-            <Sparkles className="size-3.5" /> Curated Indian recipes
+            <Sparkles className="size-3.5" /> @coachtusharraut · Holistic Health
           </div>
           <h1 className="font-display text-5xl md:text-6xl font-semibold leading-[1.05] tracking-tight">
-            Plan your week.
+            Indian Kitchen
             <br />
-            <span className="text-spice italic">Eat homemade.</span>
+            <span className="text-spice italic">Meal Plan.</span>
           </h1>
           <p className="mt-5 text-lg text-muted-foreground max-w-xl">
-            Browse hand-picked Indian dishes, build your weekly meal plan, and get a
-            smart grocery list — auto-scaled to your servings.
+            Lose weight and feel your best with Coach Tushar's hand-picked Indian
+            recipes, weekly meal plans and an auto-generated grocery list — scaled
+            to your servings.
           </p>
           {!user && (
             <div className="mt-7 flex gap-3">
