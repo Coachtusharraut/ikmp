@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth";
+import { SiteSettingsProvider } from "@/lib/site-settings";
 import { AppHeader } from "@/components/AppHeader";
 
 import appCss from "../styles.css?url";
@@ -76,13 +77,15 @@ function RootComponent() {
   return (
     <QueryClientProvider client={qc}>
       <AuthProvider>
-        <div className="min-h-screen flex flex-col">
-          <AppHeader />
-          <main className="flex-1">
-            <Outlet />
-          </main>
-        </div>
-        <Toaster richColors position="top-center" />
+        <SiteSettingsProvider>
+          <div className="min-h-screen flex flex-col">
+            <AppHeader />
+            <main className="flex-1">
+              <Outlet />
+            </main>
+          </div>
+          <Toaster richColors position="top-center" />
+        </SiteSettingsProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
