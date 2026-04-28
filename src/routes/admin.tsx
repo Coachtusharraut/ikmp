@@ -236,11 +236,13 @@ function AdminPage() {
 
 function RecipeEditorDialog({
   value,
+  sections,
   onClose,
   onSave,
   saving,
 }: {
   value: Partial<Recipe> | null;
+  sections: Section[];
   onClose: () => void;
   onSave: (r: Partial<Recipe>) => void;
   saving: boolean;
