@@ -449,3 +449,102 @@ function useStateSync<T>(value: T | null, setter: (v: T) => void) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 }
+
+function SectionsManager({ sections }: { sections: Section[] }) {
+  const qc = useQueryClient();
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+
+  const addSection = useMutation({
+    mutationFn: async () => {
+      const trimmed = name.trim();
+      if (!trimmed) throw new Error("Name is required");
+      const nextOrder = (sections.at(-1)?.sort_order ?? 0) + 1;
+      const { error } = await supabase
+        .from("sections")
+        .insert({ name: trimmed, description: description.trim() || null, sort_order: nextOrder });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Section added");
+      setName("");
+      setDescription("");
+      qc.invalidateQueries({ queryKey: ["admin_sections"] });
+      qc.invalidateQueries({ queryKey: ["sections"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const removeSection = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("sections").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Section deleted");
+      qc.invalidateQueries({ queryKey: ["admin_sections"] });
+      qc.invalidateQueries({ queryKey: ["sections"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  return (
+    <div className="bg-card border rounded-2xl p-5 space-y-5">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr_auto] gap-3 items-end">
+        <div>
+          <Label>New section name</Label>
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. High-Protein"
+            className="mt-1.5"
+          />
+        </div>
+        <div>
+          <Label>Description (optional)</Label>
+          <Input
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Short summary"
+            className="mt-1.5"
+          />
+        </div>
+        <Button
+          onClick={() => addSection.mutate()}
+          disabled={addSection.isPending || !name.trim()}
+          className="bg-spice text-spice-foreground hover:bg-spice/90"
+        >
+          <FolderPlus className="size-4 mr-2" /> Add section
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {sections.length === 0 && (
+          <p className="text-sm text-muted-foreground">No sections yet — add your first one above.</p>
+        )}
+        {sections.map((s) => (
+          <div
+            key={s.id}
+            className="group inline-flex items-center gap-2 bg-muted/40 border rounded-full pl-3 pr-1 py-1 text-sm"
+          >
+            <span className="font-medium">{s.name}</span>
+            {s.description && (
+              <span className="text-muted-foreground hidden sm:inline">· {s.description}</span>
+            )}
+            <Button
+              size="icon"
+              variant="ghost"
+              className="size-6 text-destructive opacity-60 group-hover:opacity-100"
+              onClick={() => {
+                if (confirm(`Delete section "${s.name}"? Recipes in it stay but become uncategorised.`))
+                  removeSection.mutate(s.id);
+              }}
+            >
+              <Trash2 className="size-3.5" />
+            </Button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
