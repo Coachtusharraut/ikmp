@@ -8,15 +8,24 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Pencil, Plus, Trash2, ShieldCheck } from "lucide-react";
+import { Pencil, Plus, Trash2, ShieldCheck, FolderPlus } from "lucide-react";
 import { toast } from "sonner";
 import type { Recipe, Ingredient } from "@/lib/types";
+
+type Section = { id: string; name: string; description: string | null; sort_order: number };
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
