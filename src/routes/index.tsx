@@ -28,14 +28,29 @@ function Home() {
       if (error) throw error;
       return data as unknown as Recipe[];
     },
-    enabled: !!user, // only load when authenticated (RLS requires auth)
+    enabled: !!user,
+  });
+
+  const { data: sections = [] } = useQuery({
+    queryKey: ["sections"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sections")
+        .select("name")
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return data as { name: string }[];
+    },
+    enabled: !!user,
   });
 
   const categories = useMemo(() => {
-    const s = new Set<string>();
-    recipes.forEach((r) => s.add(r.category));
-    return ["All", ...Array.from(s)];
-  }, [recipes]);
+    const ordered: string[] = ["All"];
+    const seen = new Set<string>(["All"]);
+    sections.forEach((x) => { if (!seen.has(x.name)) { ordered.push(x.name); seen.add(x.name); } });
+    recipes.forEach((r) => { if (!seen.has(r.category)) { ordered.push(r.category); seen.add(r.category); } });
+    return ordered;
+  }, [recipes, sections]);
 
   const filtered = useMemo(() => {
     return recipes.filter((r) => {
