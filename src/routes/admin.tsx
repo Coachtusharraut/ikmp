@@ -140,79 +140,92 @@ function AdminPage() {
     );
 
   return (
-    <div className="container mx-auto px-4 py-10">
-      <div className="flex items-end justify-between gap-4 mb-8 flex-wrap">
-        <div>
-          <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-spice mb-1">
-            <ShieldCheck className="size-3.5" /> Admin
+    <div className="container mx-auto px-4 py-10 space-y-12">
+      <div>
+        <div className="flex items-end justify-between gap-4 mb-6 flex-wrap">
+          <div>
+            <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-spice mb-1">
+              <ShieldCheck className="size-3.5" /> Admin
+            </div>
+            <h1 className="font-display text-4xl font-semibold">Manage sections</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Create categories like Veg, Non-Veg or Quick Smoothies. Recipes are organised by section.
+            </p>
           </div>
-          <h1 className="font-display text-4xl font-semibold">Manage recipes</h1>
         </div>
-        <Button
-          onClick={() => setEditing({ ...empty })}
-          className="bg-spice text-spice-foreground hover:bg-spice/90"
-        >
-          <Plus className="size-4 mr-2" /> New recipe
-        </Button>
+        <SectionsManager sections={sections} />
       </div>
 
-      {isLoading ? (
-        <div className="text-muted-foreground">Loading…</div>
-      ) : (
-        <div className="bg-card border rounded-2xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
-              <tr>
-                <th className="p-3 w-16"></th>
-                <th className="p-3">Name</th>
-                <th className="p-3 hidden sm:table-cell">Category</th>
-                <th className="p-3 hidden md:table-cell">Time</th>
-                <th className="p-3 hidden md:table-cell">Servings</th>
-                <th className="p-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {recipes.map((r) => (
-                <tr key={r.id} className="hover:bg-accent/20">
-                  <td className="p-2">
-                    <div className="size-12 rounded-lg overflow-hidden bg-muted">
-                      {r.image_url && (
-                        <img src={r.image_url} alt={r.name} className="w-full h-full object-cover" />
-                      )}
-                    </div>
-                  </td>
-                  <td className="p-3 font-medium">{r.name}</td>
-                  <td className="p-3 hidden sm:table-cell text-muted-foreground">{r.category}</td>
-                  <td className="p-3 hidden md:table-cell text-muted-foreground">
-                    {r.prep_time_min + r.cook_time_min} min
-                  </td>
-                  <td className="p-3 hidden md:table-cell text-muted-foreground">
-                    {r.default_servings}
-                  </td>
-                  <td className="p-3 text-right">
-                    <Button size="icon" variant="ghost" onClick={() => setEditing(r)}>
-                      <Pencil className="size-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="text-destructive"
-                      onClick={() => {
-                        if (confirm(`Delete "${r.name}"?`)) remove.mutate(r.id);
-                      }}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div>
+        <div className="flex items-end justify-between gap-4 mb-6 flex-wrap">
+          <h2 className="font-display text-3xl font-semibold">Manage recipes</h2>
+          <Button
+            onClick={() => setEditing({ ...empty, category: sections[0]?.name ?? "Veg" })}
+            className="bg-spice text-spice-foreground hover:bg-spice/90"
+          >
+            <Plus className="size-4 mr-2" /> New recipe
+          </Button>
         </div>
-      )}
+
+        {isLoading ? (
+          <div className="text-muted-foreground">Loading…</div>
+        ) : (
+          <div className="bg-card border rounded-2xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="p-3 w-16"></th>
+                  <th className="p-3">Name</th>
+                  <th className="p-3 hidden sm:table-cell">Section</th>
+                  <th className="p-3 hidden md:table-cell">Time</th>
+                  <th className="p-3 hidden md:table-cell">Servings</th>
+                  <th className="p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {recipes.map((r) => (
+                  <tr key={r.id} className="hover:bg-accent/20">
+                    <td className="p-2">
+                      <div className="size-12 rounded-lg overflow-hidden bg-muted">
+                        {r.image_url && (
+                          <img src={r.image_url} alt={r.name} className="w-full h-full object-cover" />
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-3 font-medium">{r.name}</td>
+                    <td className="p-3 hidden sm:table-cell text-muted-foreground">{r.category}</td>
+                    <td className="p-3 hidden md:table-cell text-muted-foreground">
+                      {r.prep_time_min + r.cook_time_min} min
+                    </td>
+                    <td className="p-3 hidden md:table-cell text-muted-foreground">
+                      {r.default_servings}
+                    </td>
+                    <td className="p-3 text-right">
+                      <Button size="icon" variant="ghost" onClick={() => setEditing(r)}>
+                        <Pencil className="size-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="text-destructive"
+                        onClick={() => {
+                          if (confirm(`Delete "${r.name}"?`)) remove.mutate(r.id);
+                        }}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       <RecipeEditorDialog
         value={editing}
+        sections={sections}
         onClose={() => setEditing(null)}
         onSave={(r) => save.mutate(r)}
         saving={save.isPending}
