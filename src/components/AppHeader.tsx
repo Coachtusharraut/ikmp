@@ -15,9 +15,9 @@ export function AppHeader() {
             <ChefHat className="size-5" />
           </div>
           <div className="leading-tight">
-            <div className="font-display text-xl font-semibold">Thali</div>
+            <div className="font-display text-base sm:text-lg font-semibold">@coachtusharraut</div>
             <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground -mt-0.5">
-              meal planner
+              Indian Kitchen Meal Plan
             </div>
           </div>
         </Link>
