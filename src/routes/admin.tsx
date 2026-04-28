@@ -63,6 +63,19 @@ function AdminPage() {
     enabled: !!isAdmin,
   });
 
+  const { data: sections = [] } = useQuery({
+    queryKey: ["admin_sections"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sections")
+        .select("*")
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return data as Section[];
+    },
+    enabled: !!isAdmin,
+  });
+
   const save = useMutation({
     mutationFn: async (r: Partial<Recipe>) => {
       const payload = {
