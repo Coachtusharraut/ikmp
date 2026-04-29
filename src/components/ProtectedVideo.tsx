@@ -91,3 +91,14 @@ function toYouTubeEmbed(input: string): string {
     return input;
   }
 }
+
+function toVimeoEmbed(input: string): string {
+  try {
+    const u = new URL(input);
+    const id = u.pathname.split("/").filter(Boolean).pop();
+    if (!id) return input;
+    return `https://player.vimeo.com/video/${id}`;
+  } catch {
+    return input;
+  }
+}
