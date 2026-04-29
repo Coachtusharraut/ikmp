@@ -20,8 +20,8 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) router.navigate({ to: "/" });
-  }, [user, router]);
+    if (user) window.location.assign("/");
+  }, [user]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
