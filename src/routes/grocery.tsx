@@ -76,7 +76,17 @@ function Grocery() {
           </div>
           <h1 className="font-display text-4xl font-semibold">Your week's shopping</h1>
         </div>
-        <Button variant="outline" onClick={() => window.print()}>
+        <Button
+          variant="outline"
+          onClick={() => {
+            const original = document.title;
+            document.title = `Grocery List - @coachtusharraut - ${formatWeekRange(week)}`;
+            window.print();
+            setTimeout(() => {
+              document.title = original;
+            }, 500);
+          }}
+        >
           <Printer className="size-4 mr-2" /> Print
         </Button>
       </div>
