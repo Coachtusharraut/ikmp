@@ -109,6 +109,19 @@ function CourseDetail() {
     enabled: lessonIds.length > 0,
   });
 
+  const { data: courseFiles = [] } = useQuery({
+    queryKey: ["course_files", id],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("course_files")
+        .select("*")
+        .eq("course_id", id);
+      if (error) throw error;
+      return data as { id: string; name: string; file_url: string }[];
+    },
+    enabled: !!user && canWatch,
+  });
+
   const enrolFree = useMutation({
     mutationFn: async () => {
       if (!user || !course) return;
