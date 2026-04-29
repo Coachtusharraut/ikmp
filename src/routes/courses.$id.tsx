@@ -122,7 +122,57 @@ function CourseDetail() {
     enabled: !!user && canWatch,
   });
 
-  const enrolFree = useMutation({
+  const { data: progress = [] } = useQuery({
+    queryKey: ["lesson_progress", id, user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("lesson_progress")
+        .select("lesson_id")
+        .eq("user_id", user.id)
+        .eq("course_id", id);
+      if (error) throw error;
+      return data as { lesson_id: string }[];
+    },
+    enabled: !!user && canWatch,
+  });
+
+  const completedIds = new Set(progress.map((p) => p.lesson_id));
+  const isOwner = !!user && !!course && course.created_by === user.id;
+
+  const { data: isAdmin = false } = useQuery({
+    queryKey: ["is_admin", user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      return !!data;
+    },
+    enabled: !!user,
+  });
+
+  const bypassGate = isOwner || isAdmin;
+
+  const markComplete = useMutation({
+    mutationFn: async (lessonId: string) => {
+      if (!user) return;
+      const { error } = await supabase.from("lesson_progress").insert({
+        user_id: user.id,
+        lesson_id: lessonId,
+        course_id: id,
+      });
+      if (error && !error.message.includes("duplicate")) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Lesson completed! Next lesson unlocked.");
+      qc.invalidateQueries({ queryKey: ["lesson_progress", id] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
     mutationFn: async () => {
       if (!user || !course) return;
       const { error } = await supabase.from("course_enrollments").insert({
