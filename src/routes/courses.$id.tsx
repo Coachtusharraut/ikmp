@@ -304,58 +304,110 @@ function CourseDetail() {
             <BookOpen className="size-5 text-spice" />
             <h2 className="font-display text-2xl font-semibold">Lessons</h2>
           </div>
+          <p className="text-xs text-muted-foreground mb-4">
+            Lessons unlock one at a time. Complete the current lesson to unlock the next.
+          </p>
           <div className="space-y-8">
             {lessons.map((l, i) => {
               const lessonFiles = files.filter((f) => f.lesson_id === l.id);
+              const isCompleted = completedIds.has(l.id);
+              // Unlocked if: bypass (admin/coach owner), OR it's the first lesson,
+              // OR all previous lessons are completed.
+              const prevAllDone = lessons
+                .slice(0, i)
+                .every((pl) => completedIds.has(pl.id));
+              const isUnlocked = bypassGate || i === 0 || prevAllDone;
+
               return (
                 <div key={l.id} className="rounded-2xl border bg-card overflow-hidden">
-                  <div className="p-5 border-b">
-                    <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                      Lesson {i + 1}
+                  <div className="p-5 border-b flex items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                        Lesson {i + 1}
+                        {isCompleted && (
+                          <span className="inline-flex items-center gap-1 text-spice normal-case tracking-normal">
+                            <CheckCircle className="size-3" /> Completed
+                          </span>
+                        )}
+                        {!isUnlocked && (
+                          <span className="inline-flex items-center gap-1 text-muted-foreground normal-case tracking-normal">
+                            <Lock className="size-3" /> Locked
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="font-display text-xl font-semibold mt-1">{l.title}</h3>
+                      {isUnlocked && l.description && (
+                        <Linkify text={l.description} className="text-sm text-muted-foreground mt-2" />
+                      )}
                     </div>
-                    <h3 className="font-display text-xl font-semibold mt-1">{l.title}</h3>
-                    {l.description && (
-                      <Linkify text={l.description} className="text-sm text-muted-foreground mt-2" />
-                    )}
                   </div>
-                  {l.video_url && (
-                    <div className="p-5">
-                      <ProtectedVideo
-                        url={l.video_url}
-                        type={(l.video_type ?? "youtube") as "youtube" | "upload"}
-                        title={l.title}
-                      />
+
+                  {!isUnlocked ? (
+                    <div className="p-6 text-center bg-muted/30">
+                      <Lock className="size-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        Complete the previous lesson to unlock this one.
+                      </p>
                     </div>
-                  )}
-                  {l.homework && (
-                    <div className="px-5 pb-5">
-                      <div className="rounded-xl bg-accent/40 p-4">
-                        <div className="text-xs uppercase tracking-wider text-spice mb-1">
-                          Homework
+                  ) : (
+                    <>
+                      {l.video_url && (
+                        <div className="p-5">
+                          <ProtectedVideo
+                            url={l.video_url}
+                            type={(l.video_type ?? "youtube") as "youtube" | "upload"}
+                            title={l.title}
+                          />
                         </div>
-                        <p className="text-sm whitespace-pre-line">{l.homework}</p>
-                      </div>
-                    </div>
-                  )}
-                  {lessonFiles.length > 0 && (
-                    <div className="px-5 pb-5">
-                      <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
-                        Attachments
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {lessonFiles.map((f) => (
-                          <a
-                            key={f.id}
-                            href={f.file_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border hover:bg-accent transition"
-                          >
-                            <FileText className="size-3.5" /> {f.name}
-                          </a>
-                        ))}
-                      </div>
-                    </div>
+                      )}
+                      {l.homework && (
+                        <div className="px-5 pb-5">
+                          <div className="rounded-xl bg-accent/40 p-4">
+                            <div className="text-xs uppercase tracking-wider text-spice mb-1">
+                              Homework
+                            </div>
+                            <p className="text-sm whitespace-pre-line">{l.homework}</p>
+                          </div>
+                        </div>
+                      )}
+                      {lessonFiles.length > 0 && (
+                        <div className="px-5 pb-5">
+                          <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+                            Attachments
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {lessonFiles.map((f) => (
+                              <a
+                                key={f.id}
+                                href={f.file_url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border hover:bg-accent transition"
+                              >
+                                <FileText className="size-3.5" /> {f.name}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {!bypassGate && (
+                        <div className="px-5 pb-5">
+                          {isCompleted ? (
+                            <div className="inline-flex items-center gap-2 text-sm text-spice">
+                              <CheckCircle className="size-4" /> Lesson completed
+                            </div>
+                          ) : (
+                            <Button
+                              onClick={() => markComplete.mutate(l.id)}
+                              disabled={markComplete.isPending}
+                              className="bg-spice text-spice-foreground hover:bg-spice/90"
+                            >
+                              Mark as complete & unlock next
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               );
