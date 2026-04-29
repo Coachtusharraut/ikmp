@@ -1,8 +1,41 @@
 import { Link } from "@tanstack/react-router";
-import { Clock, Users } from "lucide-react";
+import { Clock, Users, CalendarPlus } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import type { Recipe } from "@/lib/types";
+import { startOfWeekISO } from "@/lib/types";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
 
 export function RecipeCard({ recipe }: { recipe: Recipe }) {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+
+  const addToWeek = useMutation({
+    mutationFn: async () => {
+      if (!user) return;
+      const { error } = await supabase.from("meal_plan_items").insert({
+        user_id: user.id,
+        recipe_id: recipe.id,
+        servings: recipe.default_servings,
+        week_start: startOfWeekISO(),
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(`${recipe.name} added to this week`);
+      qc.invalidateQueries({ queryKey: ["meal_plan"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const handleAdd = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToWeek.mutate();
+  };
+
   return (
     <Link
       to="/recipe/$id"
@@ -43,6 +76,19 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
             <Users className="size-3.5" /> {recipe.default_servings}
           </span>
         </div>
+        {user && (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={handleAdd}
+            disabled={addToWeek.isPending}
+            className="mt-4 w-full hover:bg-spice hover:text-spice-foreground hover:border-spice"
+          >
+            <CalendarPlus className="size-3.5 mr-1.5" />
+            {addToWeek.isPending ? "Adding…" : "Add to this week"}
+          </Button>
+        )}
       </div>
     </Link>
   );
