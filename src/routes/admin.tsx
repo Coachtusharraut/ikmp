@@ -108,6 +108,8 @@ function AdminPage() {
         default_servings: Number(r.default_servings) || 4,
         instructions: r.instructions ?? null,
         ingredients: (r.ingredients ?? []) as any,
+        video_url: (r as any).video_url || null,
+        video_type: ((r as any).video_type as string) || "youtube",
         is_global: true,
       };
       let recipeId = r.id;
@@ -437,6 +439,29 @@ function RecipeEditorDialog({
             {r.image_url && (
               <img src={r.image_url} alt="" className="mt-2 h-24 rounded-lg object-cover" />
             )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Video type</Label>
+              <select
+                className="mt-1.5 w-full border rounded-md h-9 px-3 bg-background text-sm"
+                value={(r as any).video_type ?? "youtube"}
+                onChange={(e) => update("video_type" as any, e.target.value as any)}
+              >
+                <option value="youtube">YouTube</option>
+                <option value="upload">Upload (URL)</option>
+              </select>
+            </div>
+            <div>
+              <Label>Video URL (optional)</Label>
+              <Input
+                value={(r as any).video_url ?? ""}
+                onChange={(e) => update("video_url" as any, e.target.value as any)}
+                className="mt-1.5"
+                placeholder="https://youtube.com/watch?v=..."
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
