@@ -12,9 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PlannerRouteImport } from './routes/planner'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as GroceryRouteImport } from './routes/grocery'
+import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RecipeIdRouteImport } from './routes/recipe.$id'
+import { Route as CoursesIdRouteImport } from './routes/courses.$id'
 
 const PlannerRoute = PlannerRouteImport.update({
   id: '/planner',
@@ -29,6 +31,11 @@ const LoginRoute = LoginRouteImport.update({
 const GroceryRoute = GroceryRouteImport.update({
   id: '/grocery',
   path: '/grocery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoursesRoute = CoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -46,50 +53,80 @@ const RecipeIdRoute = RecipeIdRouteImport.update({
   path: '/recipe/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoursesIdRoute = CoursesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => CoursesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/grocery': typeof GroceryRoute
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
+  '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/grocery': typeof GroceryRoute
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
+  '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/grocery': typeof GroceryRoute
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
+  '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/grocery' | '/login' | '/planner' | '/recipe/$id'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/courses'
+    | '/grocery'
+    | '/login'
+    | '/planner'
+    | '/courses/$id'
+    | '/recipe/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/grocery' | '/login' | '/planner' | '/recipe/$id'
+  to:
+    | '/'
+    | '/admin'
+    | '/courses'
+    | '/grocery'
+    | '/login'
+    | '/planner'
+    | '/courses/$id'
+    | '/recipe/$id'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/courses'
     | '/grocery'
     | '/login'
     | '/planner'
+    | '/courses/$id'
     | '/recipe/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  CoursesRoute: typeof CoursesRouteWithChildren
   GroceryRoute: typeof GroceryRoute
   LoginRoute: typeof LoginRoute
   PlannerRoute: typeof PlannerRoute
@@ -119,6 +156,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GroceryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/courses': {
+      id: '/courses'
+      path: '/courses'
+      fullPath: '/courses'
+      preLoaderRoute: typeof CoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -140,12 +184,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecipeIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/courses/$id': {
+      id: '/courses/$id'
+      path: '/$id'
+      fullPath: '/courses/$id'
+      preLoaderRoute: typeof CoursesIdRouteImport
+      parentRoute: typeof CoursesRoute
+    }
   }
 }
+
+interface CoursesRouteChildren {
+  CoursesIdRoute: typeof CoursesIdRoute
+}
+
+const CoursesRouteChildren: CoursesRouteChildren = {
+  CoursesIdRoute: CoursesIdRoute,
+}
+
+const CoursesRouteWithChildren =
+  CoursesRoute._addFileChildren(CoursesRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  CoursesRoute: CoursesRouteWithChildren,
   GroceryRoute: GroceryRoute,
   LoginRoute: LoginRoute,
   PlannerRoute: PlannerRoute,
