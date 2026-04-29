@@ -20,8 +20,8 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) router.navigate({ to: "/" });
-  }, [user, router]);
+    if (user) window.location.assign("/");
+  }, [user]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,7 +33,9 @@ function LoginPage() {
       toast.error(error);
     } else {
       toast.success(mode === "signin" ? "Welcome back!" : "Account created — you're in.");
-      router.navigate({ to: "/" });
+      // Hard reload so the home page hydrates fresh with the new session
+      // and the mobile viewport/layout applies correctly.
+      window.location.assign("/");
     }
   }
 
@@ -48,7 +50,7 @@ function LoginPage() {
       return;
     }
     if (result.redirected) return;
-    router.navigate({ to: "/" });
+    window.location.assign("/");
   }
 
   return (
