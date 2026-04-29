@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PlannerRouteImport } from './routes/planner'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as GroceryRouteImport } from './routes/grocery'
+import { Route as DeleteAccountRouteImport } from './routes/delete-account'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CoachRouteImport } from './routes/coach'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -33,6 +34,11 @@ const LoginRoute = LoginRouteImport.update({
 const GroceryRoute = GroceryRouteImport.update({
   id: '/grocery',
   path: '/grocery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeleteAccountRoute = DeleteAccountRouteImport.update({
+  id: '/delete-account',
+  path: '/delete-account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursesRoute = CoursesRouteImport.update({
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/coach': typeof CoachRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/delete-account': typeof DeleteAccountRoute
   '/grocery': typeof GroceryRoute
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
@@ -87,6 +94,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/coach': typeof CoachRoute
+  '/delete-account': typeof DeleteAccountRoute
   '/grocery': typeof GroceryRoute
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
@@ -100,6 +108,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/coach': typeof CoachRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/delete-account': typeof DeleteAccountRoute
   '/grocery': typeof GroceryRoute
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/coach'
     | '/courses'
+    | '/delete-account'
     | '/grocery'
     | '/login'
     | '/planner'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/coach'
+    | '/delete-account'
     | '/grocery'
     | '/login'
     | '/planner'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/coach'
     | '/courses'
+    | '/delete-account'
     | '/grocery'
     | '/login'
     | '/planner'
@@ -150,6 +162,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   CoachRoute: typeof CoachRoute
   CoursesRoute: typeof CoursesRouteWithChildren
+  DeleteAccountRoute: typeof DeleteAccountRoute
   GroceryRoute: typeof GroceryRoute
   LoginRoute: typeof LoginRoute
   PlannerRoute: typeof PlannerRoute
@@ -177,6 +190,13 @@ declare module '@tanstack/react-router' {
       path: '/grocery'
       fullPath: '/grocery'
       preLoaderRoute: typeof GroceryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/delete-account': {
+      id: '/delete-account'
+      path: '/delete-account'
+      fullPath: '/delete-account'
+      preLoaderRoute: typeof DeleteAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/courses': {
@@ -249,6 +269,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   CoachRoute: CoachRoute,
   CoursesRoute: CoursesRouteWithChildren,
+  DeleteAccountRoute: DeleteAccountRoute,
   GroceryRoute: GroceryRoute,
   LoginRoute: LoginRoute,
   PlannerRoute: PlannerRoute,
