@@ -18,7 +18,16 @@ type Props = {
 export function ProtectedVideo({ url, type, title }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const embedUrl = type === "youtube" ? toYouTubeEmbed(url) : url;
+  // Auto-detect: if URL clearly points to YouTube/Vimeo, use iframe regardless of stored type.
+  const isYouTube = /(?:youtube\.com|youtu\.be)/i.test(url);
+  const isVimeo = /vimeo\.com/i.test(url);
+  const useIframe = isYouTube || isVimeo || type === "youtube";
+
+  const embedUrl = isYouTube
+    ? toYouTubeEmbed(url)
+    : isVimeo
+      ? toVimeoEmbed(url)
+      : url;
 
   return (
     <div
@@ -27,7 +36,7 @@ export function ProtectedVideo({ url, type, title }: Props) {
       className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black select-none"
       style={{ userSelect: "none", WebkitUserSelect: "none" }}
     >
-      {type === "youtube" ? (
+      {useIframe ? (
         <iframe
           src={embedUrl}
           title={title ?? "Video"}
