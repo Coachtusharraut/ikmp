@@ -18,7 +18,7 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
       const { error } = await supabase.from("meal_plan_items").insert({
         user_id: user.id,
         recipe_id: recipe.id,
-        servings: recipe.default_servings,
+        servings: 1,
         week_start: startOfWeekISO(),
       });
       if (error) throw error;
