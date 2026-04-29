@@ -17,6 +17,7 @@ import {
 import { Sparkles, Plus, Pencil, Trash2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { CourseLessonsEditor } from "@/components/CourseLessonsEditor";
+import { CourseFilesEditor } from "@/components/CourseFilesEditor";
 
 export const Route = createFileRoute("/coach")({
   component: CoachStudio,
@@ -522,13 +523,18 @@ export function CourseEditor({
           </label>
 
           {c.id && (
-            <div className="pt-4 border-t">
-              <CourseLessonsEditor courseId={c.id} />
-            </div>
+            <>
+              <div className="pt-4 border-t">
+                <CourseFilesEditor courseId={c.id} />
+              </div>
+              <div className="pt-4 border-t">
+                <CourseLessonsEditor courseId={c.id} />
+              </div>
+            </>
           )}
           {!c.id && (
             <p className="text-xs text-muted-foreground border-t pt-3">
-              Save the course first to add lessons, homework, and files.
+              Save the course first to add attachments, lessons, homework, and files.
             </p>
           )}
         </div>

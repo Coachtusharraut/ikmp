@@ -18,6 +18,7 @@ import { Pencil, Plus, Trash2, ShieldCheck, FolderPlus, Upload, Palette } from "
 import { toast } from "sonner";
 import type { Recipe, Ingredient } from "@/lib/types";
 import { CourseLessonsEditor } from "@/components/CourseLessonsEditor";
+import { CourseFilesEditor } from "@/components/CourseFilesEditor";
 
 type Section = { id: string; name: string; description: string | null; sort_order: number };
 type RecipeSectionLink = { recipe_id: string; section_id: string };
@@ -1291,7 +1292,7 @@ function CoursesManager() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label>Video type</Label>
+                  <Label>Video type (optional)</Label>
                   <select
                     className="mt-1.5 w-full border rounded-md h-9 px-3 bg-background text-sm"
                     value={editing.video_type ?? "youtube"}
@@ -1302,14 +1303,18 @@ function CoursesManager() {
                   </select>
                 </div>
                 <div>
-                  <Label>Video URL</Label>
+                  <Label>Video URL (optional)</Label>
                   <Input
                     value={editing.video_url ?? ""}
                     onChange={(e) => setEditing({ ...editing, video_url: e.target.value })}
                     className="mt-1.5"
+                    placeholder="Leave empty if course has no intro video"
                   />
                 </div>
               </div>
+              <p className="text-xs text-muted-foreground -mt-1">
+                Tip: A course can have just attachments (PDFs, docs) with no video at all.
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Price (₹)</Label>
@@ -1346,13 +1351,18 @@ function CoursesManager() {
               </label>
 
               {editing.id && (
-                <div className="pt-4 border-t">
-                  <CourseLessonsEditor courseId={editing.id} />
-                </div>
+                <>
+                  <div className="pt-4 border-t">
+                    <CourseFilesEditor courseId={editing.id} />
+                  </div>
+                  <div className="pt-4 border-t">
+                    <CourseLessonsEditor courseId={editing.id} />
+                  </div>
+                </>
               )}
               {!editing.id && (
                 <p className="text-xs text-muted-foreground border-t pt-3">
-                  Save the course first to add lessons, homework, and files.
+                  Save the course first to add attachments, lessons, homework, and files.
                 </p>
               )}
             </div>
