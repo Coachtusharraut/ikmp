@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PlannerRouteImport } from './routes/planner'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as GroceryRouteImport } from './routes/grocery'
+import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CoachRouteImport } from './routes/coach'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -34,6 +35,11 @@ const GroceryRoute = GroceryRouteImport.update({
   path: '/grocery',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoursesRoute = CoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CoachRoute = CoachRouteImport.update({
   id: '/coach',
   path: '/coach',
@@ -50,9 +56,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursesIndexRoute = CoursesIndexRouteImport.update({
-  id: '/courses/',
-  path: '/courses/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => CoursesRoute,
 } as any)
 const RecipeIdRoute = RecipeIdRouteImport.update({
   id: '/recipe/$id',
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/coach': typeof CoachRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/grocery': typeof GroceryRoute
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
@@ -92,6 +99,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/coach': typeof CoachRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/grocery': typeof GroceryRoute
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
@@ -105,6 +113,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/coach'
+    | '/courses'
     | '/grocery'
     | '/login'
     | '/planner'
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/coach'
+    | '/courses'
     | '/grocery'
     | '/login'
     | '/planner'
@@ -139,11 +149,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   CoachRoute: typeof CoachRoute
+  CoursesRoute: typeof CoursesRouteWithChildren
   GroceryRoute: typeof GroceryRoute
   LoginRoute: typeof LoginRoute
   PlannerRoute: typeof PlannerRoute
   RecipeIdRoute: typeof RecipeIdRoute
-  CoursesIndexRoute: typeof CoursesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -169,6 +179,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GroceryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/courses': {
+      id: '/courses'
+      path: '/courses'
+      fullPath: '/courses'
+      preLoaderRoute: typeof CoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/coach': {
       id: '/coach'
       path: '/coach'
@@ -192,10 +209,10 @@ declare module '@tanstack/react-router' {
     }
     '/courses/': {
       id: '/courses/'
-      path: '/courses'
+      path: '/'
       fullPath: '/courses/'
       preLoaderRoute: typeof CoursesIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof CoursesRoute
     }
     '/recipe/$id': {
       id: '/recipe/$id'
@@ -214,15 +231,28 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface CoursesRouteChildren {
+  CoursesIdRoute: typeof CoursesIdRoute
+  CoursesIndexRoute: typeof CoursesIndexRoute
+}
+
+const CoursesRouteChildren: CoursesRouteChildren = {
+  CoursesIdRoute: CoursesIdRoute,
+  CoursesIndexRoute: CoursesIndexRoute,
+}
+
+const CoursesRouteWithChildren =
+  CoursesRoute._addFileChildren(CoursesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   CoachRoute: CoachRoute,
+  CoursesRoute: CoursesRouteWithChildren,
   GroceryRoute: GroceryRoute,
   LoginRoute: LoginRoute,
   PlannerRoute: PlannerRoute,
   RecipeIdRoute: RecipeIdRoute,
-  CoursesIndexRoute: CoursesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
