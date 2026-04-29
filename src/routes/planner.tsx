@@ -42,7 +42,7 @@ function Planner() {
   });
 
   const updateItem = useMutation({
-    mutationFn: async ({ id, patch }: { id: string; patch: Record<string, number> }) => {
+    mutationFn: async ({ id, patch }: { id: string; patch: { servings?: number; times_per_week?: number } }) => {
       const { error } = await supabase
         .from("meal_plan_items")
         .update(patch)
