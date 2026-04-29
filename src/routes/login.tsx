@@ -37,6 +37,20 @@ function LoginPage() {
     }
   }
 
+  async function handleGoogle() {
+    setLoading(true);
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
+    if (result.error) {
+      setLoading(false);
+      toast.error(result.error.message ?? "Google sign-in failed");
+      return;
+    }
+    if (result.redirected) return;
+    router.navigate({ to: "/" });
+  }
+
   return (
     <div className="container mx-auto px-4 py-16 max-w-md">
       <div className="bg-card border rounded-2xl p-8 shadow-sm">
