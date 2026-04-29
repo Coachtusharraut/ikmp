@@ -14,7 +14,7 @@ export const Route = createFileRoute("/grocery")({
   component: Grocery,
 });
 
-type PlanRow = { servings: number; recipes: Recipe };
+type PlanRow = { servings: number; times_per_week: number; recipes: Recipe };
 
 type AggItem = { name: string; unit: string; qty: number; sources: string[] };
 
@@ -22,7 +22,9 @@ function aggregate(rows: PlanRow[]): AggItem[] {
   const map = new Map<string, AggItem>();
   for (const row of rows) {
     const r = row.recipes;
-    const scale = row.servings / r.default_servings;
+    const times = Math.max(1, row.times_per_week ?? 1);
+    // Scale per-meal by people; multiply by how many times it's cooked this week.
+    const scale = (row.servings / r.default_servings) * times;
     for (const ing of r.ingredients as Ingredient[]) {
       const key = `${ing.name.toLowerCase()}|${ing.unit.toLowerCase()}`;
       const existing = map.get(key);
