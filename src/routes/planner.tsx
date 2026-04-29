@@ -17,6 +17,7 @@ type PlanRow = {
   id: string;
   recipe_id: string;
   servings: number;
+  times_per_week: number;
   week_start: string;
   recipes: Recipe;
 };
@@ -31,7 +32,7 @@ function Planner() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("meal_plan_items")
-        .select("id, recipe_id, servings, week_start, recipes(*)")
+        .select("id, recipe_id, servings, times_per_week, week_start, recipes(*)")
         .eq("week_start", week)
         .order("created_at");
       if (error) throw error;
@@ -40,11 +41,11 @@ function Planner() {
     enabled: !!user,
   });
 
-  const updateServings = useMutation({
-    mutationFn: async ({ id, servings }: { id: string; servings: number }) => {
+  const updateItem = useMutation({
+    mutationFn: async ({ id, patch }: { id: string; patch: Record<string, number> }) => {
       const { error } = await supabase
         .from("meal_plan_items")
-        .update({ servings })
+        .update(patch)
         .eq("id", id);
       if (error) throw error;
     },
