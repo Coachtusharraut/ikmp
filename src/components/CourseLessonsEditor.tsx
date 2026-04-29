@@ -195,7 +195,7 @@ export function CourseLessonsEditor({ courseId }: { courseId: string }) {
                     }
                   >
                     <option value="youtube">YouTube</option>
-                    <option value="upload">Upload (URL)</option>
+                    <option value="upload">Video file / direct URL</option>
                   </select>
                 </div>
                 <div>
@@ -236,7 +236,7 @@ export function CourseLessonsEditor({ courseId }: { courseId: string }) {
                 <div className="border-t pt-3">
                   <Label>Attachments</Label>
                   <p className="text-xs text-muted-foreground mb-2">
-                    Add downloadable PDFs, worksheets, or any file your learners should keep.
+                    Add downloadable PDFs, documents, worksheets, images, audio, or any other learner files. Multiple files allowed.
                   </p>
                   <LessonFiles lessonId={editing.id} />
                 </div>
@@ -280,22 +280,24 @@ function LessonFiles({ lessonId }: { lessonId: string }) {
     },
   });
 
-  async function upload(file: File) {
+  async function uploadMany(fileList: FileList) {
     setBusy(true);
     try {
-      const ext = file.name.split(".").pop();
-      const path = `${lessonId}/${crypto.randomUUID()}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from("course-files")
-        .upload(path, file, { upsert: false });
-      if (upErr) throw upErr;
-      const { data } = supabase.storage.from("course-files").getPublicUrl(path);
-      const { error } = await supabase
-        .from("course_lesson_files")
-        .insert({ lesson_id: lessonId, name: file.name, file_url: data.publicUrl });
-      if (error) throw error;
+      for (const file of Array.from(fileList)) {
+        const ext = file.name.split(".").pop();
+        const path = `${lessonId}/${crypto.randomUUID()}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("course-files")
+          .upload(path, file, { upsert: false });
+        if (upErr) throw upErr;
+        const { data } = supabase.storage.from("course-files").getPublicUrl(path);
+        const { error } = await supabase
+          .from("course_lesson_files")
+          .insert({ lesson_id: lessonId, name: file.name, file_url: data.publicUrl });
+        if (error) throw error;
+      }
       qc.invalidateQueries({ queryKey: ["lesson_files", lessonId] });
-      toast.success("File attached");
+      toast.success("File(s) attached");
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -312,6 +314,11 @@ function LessonFiles({ lessonId }: { lessonId: string }) {
 
   return (
     <div className="mt-2 flex flex-wrap items-center gap-2">
+      {files.length === 0 && (
+        <span className="text-xs text-muted-foreground px-2 py-1 rounded-full bg-muted/60">
+          No attachments yet
+        </span>
+      )}
       {files.map((f) => (
         <span
           key={f.id}
@@ -328,12 +335,16 @@ function LessonFiles({ lessonId }: { lessonId: string }) {
       ))}
       <label className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border cursor-pointer hover:bg-accent">
         <Upload className="size-3" />
-        {busy ? "Uploading…" : "Attach file"}
+        {busy ? "Uploading…" : "Attach file(s)"}
         <input
           type="file"
+          multiple
           className="hidden"
           disabled={busy}
-          onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
+          onChange={(e) => {
+            if (e.target.files && e.target.files.length > 0) uploadMany(e.target.files);
+            e.currentTarget.value = "";
+          }}
         />
       </label>
     </div>

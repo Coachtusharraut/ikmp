@@ -57,11 +57,16 @@ export function CourseFilesEditor({ courseId }: { courseId: string }) {
 
   return (
     <div className="space-y-2">
-      <Label>Course attachments</Label>
+      <Label>Attachments & resources</Label>
       <p className="text-xs text-muted-foreground">
-        Add any files learners need — PDFs, worksheets, recipes, audio, images, anything. Multiple files allowed. No video required.
+        Add PDFs, documents, worksheets, images, audio, or any other learner files. Multiple files allowed — videos are not required.
       </p>
       <div className="flex flex-wrap items-center gap-2">
+        {files.length === 0 && (
+          <span className="text-xs text-muted-foreground px-2 py-1 rounded-full bg-muted/60">
+            No attachments yet
+          </span>
+        )}
         {files.map((f) => (
           <span
             key={f.id}
@@ -84,7 +89,10 @@ export function CourseFilesEditor({ courseId }: { courseId: string }) {
             multiple
             className="hidden"
             disabled={busy}
-            onChange={(e) => e.target.files && e.target.files.length > 0 && uploadMany(e.target.files)}
+            onChange={(e) => {
+              if (e.target.files && e.target.files.length > 0) uploadMany(e.target.files);
+              e.currentTarget.value = "";
+            }}
           />
         </label>
       </div>
