@@ -14,6 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
+      course_enrollments: {
+        Row: {
+          amount_paid: number
+          course_id: string
+          enrolled_at: string
+          id: string
+          payment_status: string
+          user_id: string
+        }
+        Insert: {
+          amount_paid?: number
+          course_id: string
+          enrolled_at?: string
+          id?: string
+          payment_status?: string
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          course_id?: string
+          enrolled_at?: string
+          id?: string
+          payment_status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_free: boolean
+          is_published: boolean
+          price: number
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_type: string
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_free?: boolean
+          is_published?: boolean
+          price?: number
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_type?: string
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_free?: boolean
+          is_published?: boolean
+          price?: number
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_type?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      delete_requests: {
+        Row: {
+          created_at: string
+          id: string
+          reason: string | null
+          requester_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          target_id: string
+          target_name: string | null
+          target_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reason?: string | null
+          requester_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          target_id: string
+          target_name?: string | null
+          target_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reason?: string | null
+          requester_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          target_id?: string
+          target_name?: string | null
+          target_type?: string
+        }
+        Relationships: []
+      }
       meal_plan_items: {
         Row: {
           created_at: string
@@ -102,6 +221,8 @@ export type Database = {
           name: string
           prep_time_min: number
           updated_at: string
+          video_type: string | null
+          video_url: string | null
         }
         Insert: {
           category?: string
@@ -119,6 +240,8 @@ export type Database = {
           name: string
           prep_time_min?: number
           updated_at?: string
+          video_type?: string | null
+          video_url?: string | null
         }
         Update: {
           category?: string
@@ -136,6 +259,8 @@ export type Database = {
           name?: string
           prep_time_min?: number
           updated_at?: string
+          video_type?: string | null
+          video_url?: string | null
         }
         Relationships: []
       }
@@ -264,7 +389,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "coach"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -392,7 +517,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "coach"],
     },
   },
 } as const

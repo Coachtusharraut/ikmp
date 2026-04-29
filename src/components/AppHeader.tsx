@@ -4,10 +4,10 @@ import { useAuth } from "@/lib/auth";
 import { useSiteSettings } from "@/lib/site-settings";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { ChefHat, LogOut, ShieldCheck, Menu } from "lucide-react";
+import { ChefHat, LogOut, ShieldCheck, Menu, GraduationCap, Sparkles } from "lucide-react";
 
 export function AppHeader() {
-  const { user, isAdmin, signOut } = useAuth();
+  const { user, isAdmin, isCoach, signOut } = useAuth();
   const router = useRouter();
   const settings = useSiteSettings();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -39,6 +39,11 @@ export function AppHeader() {
                     Recipes
                   </Link>
                 </SheetClose>
+                <SheetClose asChild>
+                  <Link to="/courses" className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent">
+                    Courses
+                  </Link>
+                </SheetClose>
                 {user && (
                   <>
                     <SheetClose asChild>
@@ -51,6 +56,13 @@ export function AppHeader() {
                         Grocery list
                       </Link>
                     </SheetClose>
+                    {isCoach && !isAdmin && (
+                      <SheetClose asChild>
+                        <Link to="/coach" className="px-3 py-2 rounded-md text-sm text-spice hover:bg-accent flex items-center gap-2">
+                          <Sparkles className="size-4" /> Coach studio
+                        </Link>
+                      </SheetClose>
+                    )}
                     {isAdmin && (
                       <SheetClose asChild>
                         <Link to="/admin" className="px-3 py-2 rounded-md text-sm text-spice hover:bg-accent flex items-center gap-2">
@@ -105,6 +117,9 @@ export function AppHeader() {
           <Link to="/" className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition" activeProps={{ className: "px-3 py-2 text-sm text-foreground font-medium" }} activeOptions={{ exact: true }}>
             Recipes
           </Link>
+          <Link to="/courses" className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition flex items-center gap-1" activeProps={{ className: "px-3 py-2 text-sm text-foreground font-medium flex items-center gap-1" }}>
+            <GraduationCap className="size-4" /> Courses
+          </Link>
           {user && (
             <>
               <Link to="/planner" className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition" activeProps={{ className: "px-3 py-2 text-sm text-foreground font-medium" }}>
@@ -113,6 +128,11 @@ export function AppHeader() {
               <Link to="/grocery" className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition" activeProps={{ className: "px-3 py-2 text-sm text-foreground font-medium" }}>
                 Grocery list
               </Link>
+              {isCoach && !isAdmin && (
+                <Link to="/coach" className="px-3 py-2 text-sm text-spice hover:opacity-80 transition flex items-center gap-1" activeProps={{ className: "px-3 py-2 text-sm text-spice font-medium flex items-center gap-1" }}>
+                  <Sparkles className="size-4" /> Coach
+                </Link>
+              )}
               {isAdmin && (
                 <Link to="/admin" className="px-3 py-2 text-sm text-spice hover:opacity-80 transition flex items-center gap-1" activeProps={{ className: "px-3 py-2 text-sm text-spice font-medium flex items-center gap-1" }}>
                   <ShieldCheck className="size-4" /> Admin

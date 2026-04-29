@@ -9,6 +9,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import type { Recipe } from "@/lib/types";
 import { startOfWeekISO } from "@/lib/types";
+import { ProtectedVideo } from "@/components/ProtectedVideo";
 
 export const Route = createFileRoute("/recipe/$id")({
   component: RecipeDetail,
@@ -157,6 +158,18 @@ function RecipeDetail() {
           </div>
         </div>
       </div>
+
+      {/* Video (optional) */}
+      {(recipe as any).video_url && (
+        <div className="container mx-auto px-4 mt-10">
+          <h2 className="font-display text-2xl font-semibold mb-4">Watch</h2>
+          <ProtectedVideo
+            url={(recipe as any).video_url}
+            type={((recipe as any).video_type ?? "youtube") as "youtube" | "upload"}
+            title={recipe.name}
+          />
+        </div>
+      )}
 
       {/* Ingredients & instructions */}
       <div className="container mx-auto px-4 py-12">

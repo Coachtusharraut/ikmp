@@ -189,6 +189,15 @@ function AdminPage() {
         <SiteSettingsManager />
       </div>
 
+      {/* Coaches */}
+      <CoachesManager />
+
+      {/* Delete requests */}
+      <DeleteRequestsManager />
+
+      {/* Courses */}
+      <CoursesManager />
+
       {/* Sections */}
       <div>
         <div className="flex items-end justify-between gap-4 mb-6 flex-wrap">
@@ -850,3 +859,402 @@ function ColorField({
     </div>
   );
 }
+
+/* ─────────────── Coaches Manager ─────────────── */
+function CoachesManager() {
+  const qc = useQueryClient();
+  const [email, setEmail] = useState("");
+
+  const { data: coaches = [] } = useQuery({
+    queryKey: ["admin_coaches"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("id,user_id,role,created_at")
+        .in("role", ["coach", "admin"]);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const promote = useMutation({
+    mutationFn: async (targetEmail: string) => {
+      // Look up user_id by email isn't possible from client without service role.
+      // So admin must paste the user's UUID instead.
+      const userId = targetEmail.trim();
+      if (!/^[0-9a-f-]{36}$/i.test(userId)) {
+        throw new Error("Paste the user's UUID (from Auth → Users in Cloud).");
+      }
+      const { error } = await supabase
+        .from("user_roles")
+        .insert({ user_id: userId, role: "coach" });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Coach added");
+      setEmail("");
+      qc.invalidateQueries({ queryKey: ["admin_coaches"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const demote = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("user_roles").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Removed");
+      qc.invalidateQueries({ queryKey: ["admin_coaches"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  return (
+    <div>
+      <h2 className="font-display text-3xl font-semibold mb-4">Coaches</h2>
+      <p className="text-sm text-muted-foreground mb-4">
+        Coaches can add recipes & courses, edit only their own, and request deletions for admin review.
+        To invite: ask the user to sign up, then paste their User ID below (find it in Cloud → Users).
+      </p>
+      <div className="flex gap-2 mb-4">
+        <Input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="User UUID (e.g. 8b3f… )"
+          className="font-mono text-xs"
+        />
+        <Button
+          onClick={() => promote.mutate(email)}
+          disabled={promote.isPending || !email}
+          className="bg-spice text-spice-foreground hover:bg-spice/90"
+        >
+          <Plus className="size-4 mr-1" /> Add coach
+        </Button>
+      </div>
+      <div className="bg-card border rounded-2xl divide-y">
+        {coaches.map((c: any) => (
+          <div key={c.id} className="p-3 flex items-center gap-3 text-sm">
+            <span className="font-mono text-xs text-muted-foreground flex-1 truncate">{c.user_id}</span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-accent">{c.role}</span>
+            {c.role === "coach" && (
+              <Button size="sm" variant="ghost" className="text-destructive" onClick={() => demote.mutate(c.id)}>
+                Remove
+              </Button>
+            )}
+          </div>
+        ))}
+        {coaches.length === 0 && (
+          <div className="p-4 text-sm text-muted-foreground">No coaches yet.</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────── Delete Requests Manager ─────────────── */
+function DeleteRequestsManager() {
+  const qc = useQueryClient();
+  const { data: requests = [] } = useQuery({
+    queryKey: ["admin_delete_requests"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("delete_requests")
+        .select("*")
+        .eq("status", "pending")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const approve = useMutation({
+    mutationFn: async (req: any) => {
+      const table = req.target_type === "course" ? "courses" : "recipes";
+      const { error: delErr } = await supabase.from(table).delete().eq("id", req.target_id);
+      if (delErr) throw delErr;
+      const { error } = await supabase
+        .from("delete_requests")
+        .update({ status: "approved", reviewed_at: new Date().toISOString() })
+        .eq("id", req.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Deleted & request approved");
+      qc.invalidateQueries({ queryKey: ["admin_delete_requests"] });
+      qc.invalidateQueries({ queryKey: ["admin_recipes"] });
+      qc.invalidateQueries({ queryKey: ["recipes"] });
+      qc.invalidateQueries({ queryKey: ["courses"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const reject = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("delete_requests")
+        .update({ status: "rejected", reviewed_at: new Date().toISOString() })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Rejected");
+      qc.invalidateQueries({ queryKey: ["admin_delete_requests"] });
+    },
+  });
+
+  return (
+    <div>
+      <h2 className="font-display text-3xl font-semibold mb-4">
+        Delete requests
+        {requests.length > 0 && (
+          <span className="ml-2 text-sm align-middle px-2 py-0.5 rounded-full bg-spice text-spice-foreground">
+            {requests.length}
+          </span>
+        )}
+      </h2>
+      {requests.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No pending requests.</p>
+      ) : (
+        <div className="bg-card border rounded-2xl divide-y">
+          {requests.map((r: any) => (
+            <div key={r.id} className="p-4 flex items-start gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="font-medium">
+                  {r.target_type}: {r.target_name}
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">Reason: {r.reason}</div>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => reject.mutate(r.id)}>
+                Reject
+              </Button>
+              <Button
+                size="sm"
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={() => approve.mutate(r)}
+              >
+                Approve & delete
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─────────────── Courses Manager ─────────────── */
+function CoursesManager() {
+  const qc = useQueryClient();
+  const [editing, setEditing] = useState<any | null>(null);
+
+  const { data: courses = [] } = useQuery({
+    queryKey: ["admin_courses"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("courses")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const save = useMutation({
+    mutationFn: async (c: any) => {
+      const payload = {
+        title: c.title,
+        description: c.description ?? null,
+        video_url: c.video_url || null,
+        video_type: c.video_type || "youtube",
+        thumbnail_url: c.thumbnail_url || null,
+        price: Number(c.price) || 0,
+        is_free: !!c.is_free,
+        is_published: c.is_published ?? true,
+      };
+      if (c.id) {
+        const { error } = await supabase.from("courses").update(payload).eq("id", c.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("courses").insert(payload);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      toast.success("Course saved");
+      setEditing(null);
+      qc.invalidateQueries({ queryKey: ["admin_courses"] });
+      qc.invalidateQueries({ queryKey: ["courses"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const remove = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("courses").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Deleted");
+      qc.invalidateQueries({ queryKey: ["admin_courses"] });
+      qc.invalidateQueries({ queryKey: ["courses"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  return (
+    <div>
+      <div className="flex items-end justify-between gap-4 mb-4 flex-wrap">
+        <h2 className="font-display text-3xl font-semibold">Courses</h2>
+        <Button
+          onClick={() =>
+            setEditing({
+              title: "",
+              description: "",
+              video_url: "",
+              video_type: "youtube",
+              price: 0,
+              is_free: true,
+              is_published: true,
+            })
+          }
+          className="bg-spice text-spice-foreground hover:bg-spice/90"
+        >
+          <Plus className="size-4 mr-2" /> New course
+        </Button>
+      </div>
+      <div className="bg-card border rounded-2xl divide-y">
+        {courses.map((c: any) => (
+          <div key={c.id} className="p-4 flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="font-medium truncate">{c.title}</div>
+              <div className="text-xs text-muted-foreground">
+                {c.is_free ? "Free" : `₹${c.price}`} · {c.is_published ? "Published" : "Draft"}
+              </div>
+            </div>
+            <Button size="icon" variant="ghost" onClick={() => setEditing(c)}>
+              <Pencil className="size-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="text-destructive"
+              onClick={() => {
+                if (confirm(`Delete "${c.title}"?`)) remove.mutate(c.id);
+              }}
+            >
+              <Trash2 className="size-4" />
+            </Button>
+          </div>
+        ))}
+        {courses.length === 0 && (
+          <div className="p-4 text-sm text-muted-foreground">No courses yet.</div>
+        )}
+      </div>
+
+      {editing && (
+        <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>{editing.id ? "Edit course" : "New course"}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
+              <div>
+                <Label>Title</Label>
+                <Input
+                  value={editing.title ?? ""}
+                  onChange={(e) => setEditing({ ...editing, title: e.target.value })}
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label>Description</Label>
+                <Textarea
+                  value={editing.description ?? ""}
+                  onChange={(e) => setEditing({ ...editing, description: e.target.value })}
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label>Thumbnail URL</Label>
+                <Input
+                  value={editing.thumbnail_url ?? ""}
+                  onChange={(e) => setEditing({ ...editing, thumbnail_url: e.target.value })}
+                  className="mt-1.5"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Video type</Label>
+                  <select
+                    className="mt-1.5 w-full border rounded-md h-9 px-3 bg-background text-sm"
+                    value={editing.video_type ?? "youtube"}
+                    onChange={(e) => setEditing({ ...editing, video_type: e.target.value })}
+                  >
+                    <option value="youtube">YouTube</option>
+                    <option value="upload">Upload (URL)</option>
+                  </select>
+                </div>
+                <div>
+                  <Label>Video URL</Label>
+                  <Input
+                    value={editing.video_url ?? ""}
+                    onChange={(e) => setEditing({ ...editing, video_url: e.target.value })}
+                    className="mt-1.5"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Price (₹)</Label>
+                  <Input
+                    type="number"
+                    value={editing.price ?? 0}
+                    disabled={!!editing.is_free}
+                    onChange={(e) => setEditing({ ...editing, price: parseFloat(e.target.value) || 0 })}
+                    className="mt-1.5"
+                  />
+                </div>
+                <label className="flex items-end gap-2 pb-2">
+                  <input
+                    type="checkbox"
+                    checked={!!editing.is_free}
+                    onChange={(e) =>
+                      setEditing({
+                        ...editing,
+                        is_free: e.target.checked,
+                        price: e.target.checked ? 0 : editing.price,
+                      })
+                    }
+                  />
+                  <span className="text-sm">Free</span>
+                </label>
+              </div>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={editing.is_published ?? true}
+                  onChange={(e) => setEditing({ ...editing, is_published: e.target.checked })}
+                />
+                <span className="text-sm">Published</span>
+              </label>
+            </div>
+            <DialogFooter>
+              <Button variant="ghost" onClick={() => setEditing(null)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={() => save.mutate(editing)}
+                disabled={save.isPending || !editing.title}
+                className="bg-spice text-spice-foreground hover:bg-spice/90"
+              >
+                {save.isPending ? "Saving…" : "Save"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
+  );
+}
+
