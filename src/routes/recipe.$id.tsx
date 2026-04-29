@@ -31,7 +31,7 @@ function RecipeDetail() {
     enabled: !!user,
   });
 
-  const currentServings = servings ?? recipe?.default_servings ?? 4;
+  const currentServings = servings ?? 1;
   const scale = recipe ? currentServings / recipe.default_servings : 1;
 
   const addToWeek = useMutation({
