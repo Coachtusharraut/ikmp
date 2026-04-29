@@ -14,6 +14,8 @@ export type Recipe = {
   ingredients: Ingredient[];
   is_global: boolean;
   created_by: string | null;
+  video_url?: string | null;
+  video_type?: "youtube" | "upload" | null;
 };
 
 export function startOfWeekISO(d = new Date()): string {
