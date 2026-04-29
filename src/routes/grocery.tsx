@@ -40,8 +40,19 @@ function aggregate(rows: PlanRow[]): AggItem[] {
 
 function Grocery() {
   const { user } = useAuth();
+  const settings = useSiteSettings();
   const week = startOfWeekISO();
   const [checked, setChecked] = useState<Record<string, boolean>>({});
+
+  // Set the document title so the browser's "Save as PDF" filename uses your branding
+  // instead of the default app name. Restore on unmount.
+  useEffect(() => {
+    const original = document.title;
+    document.title = `Grocery List - ${settings.site_name} - ${formatWeekRange(week)}`;
+    return () => {
+      document.title = original;
+    };
+  }, [settings.site_name, week]);
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["meal_plan", week, "grocery"],
