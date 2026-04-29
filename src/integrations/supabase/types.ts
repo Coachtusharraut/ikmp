@@ -49,6 +49,30 @@ export type Database = {
           },
         ]
       }
+      course_files: {
+        Row: {
+          course_id: string
+          created_at: string
+          file_url: string
+          id: string
+          name: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          file_url: string
+          id?: string
+          name: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          file_url?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       course_lesson_files: {
         Row: {
           created_at: string
