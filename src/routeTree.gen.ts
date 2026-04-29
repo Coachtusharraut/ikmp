@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlannerRouteImport } from './routes/planner'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as GroceryRouteImport } from './routes/grocery'
@@ -21,6 +22,11 @@ import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as RecipeIdRouteImport } from './routes/recipe.$id'
 import { Route as CoursesIdRouteImport } from './routes/courses.$id'
 
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlannerRoute = PlannerRouteImport.update({
   id: '/planner',
   path: '/planner',
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/grocery': typeof GroceryRoute
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
+  '/privacy': typeof PrivacyRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
   '/courses/': typeof CoursesIndexRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/grocery': typeof GroceryRoute
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
+  '/privacy': typeof PrivacyRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
   '/courses': typeof CoursesIndexRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/grocery': typeof GroceryRoute
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
+  '/privacy': typeof PrivacyRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
   '/courses/': typeof CoursesIndexRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/grocery'
     | '/login'
     | '/planner'
+    | '/privacy'
     | '/courses/$id'
     | '/recipe/$id'
     | '/courses/'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/grocery'
     | '/login'
     | '/planner'
+    | '/privacy'
     | '/courses/$id'
     | '/recipe/$id'
     | '/courses'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/grocery'
     | '/login'
     | '/planner'
+    | '/privacy'
     | '/courses/$id'
     | '/recipe/$id'
     | '/courses/'
@@ -166,11 +178,19 @@ export interface RootRouteChildren {
   GroceryRoute: typeof GroceryRoute
   LoginRoute: typeof LoginRoute
   PlannerRoute: typeof PlannerRoute
+  PrivacyRoute: typeof PrivacyRoute
   RecipeIdRoute: typeof RecipeIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/planner': {
       id: '/planner'
       path: '/planner'
@@ -273,6 +293,7 @@ const rootRouteChildren: RootRouteChildren = {
   GroceryRoute: GroceryRoute,
   LoginRoute: LoginRoute,
   PlannerRoute: PlannerRoute,
+  PrivacyRoute: PrivacyRoute,
   RecipeIdRoute: RecipeIdRoute,
 }
 export const routeTree = rootRouteImport
