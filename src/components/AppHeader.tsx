@@ -12,6 +12,12 @@ export function AppHeader() {
   const settings = useSiteSettings();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const handleSignOut = async () => {
+    await signOut();
+    setMobileOpen(false);
+    router.navigate({ to: "/login" });
+  };
+
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-2">
@@ -59,16 +65,7 @@ export function AppHeader() {
                 {user ? (
                   <>
                     <div className="px-3 text-xs text-muted-foreground truncate mb-2">{user.email}</div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={async () => {
-                        await signOut();
-                        setMobileOpen(false);
-                        router.navigate({ to: "/login" });
-                      }}
-                    >
+                    <Button variant="outline" size="sm" className="w-full" onClick={handleSignOut}>
                       <LogOut className="size-4 mr-2" /> Sign out
                     </Button>
                   </>
@@ -84,23 +81,23 @@ export function AppHeader() {
           </Sheet>
 
           <Link to="/" className="flex items-center gap-2 group min-w-0">
-          {settings.logo_url ? (
-            <img
-              src={settings.logo_url}
-              alt={settings.site_name}
-              className="size-9 rounded-xl object-cover shadow-sm"
-            />
-          ) : (
-            <div className="size-9 rounded-xl bg-spice text-spice-foreground grid place-items-center shadow-sm">
-              <ChefHat className="size-5" />
+            {settings.logo_url ? (
+              <img
+                src={settings.logo_url}
+                alt={settings.site_name}
+                className="size-9 rounded-xl object-cover shadow-sm"
+              />
+            ) : (
+              <div className="size-9 rounded-xl bg-spice text-spice-foreground grid place-items-center shadow-sm">
+                <ChefHat className="size-5" />
+              </div>
+            )}
+            <div className="leading-tight">
+              <div className="font-display text-base sm:text-lg font-semibold">{settings.site_name}</div>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground -mt-0.5">
+                {settings.tagline}
+              </div>
             </div>
-          )}
-          <div className="leading-tight">
-            <div className="font-display text-base sm:text-lg font-semibold">{settings.site_name}</div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground -mt-0.5">
-              {settings.tagline}
-            </div>
-          </div>
           </Link>
         </div>
 
@@ -131,15 +128,7 @@ export function AppHeader() {
               <span className="hidden sm:block text-xs text-muted-foreground max-w-[160px] truncate">
                 {user.email}
               </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="hidden md:inline-flex"
-                onClick={async () => {
-                  await signOut();
-                  router.navigate({ to: "/login" });
-                }}
-              >
+              <Button variant="ghost" size="sm" className="hidden md:inline-flex" onClick={handleSignOut}>
                 <LogOut className="size-4" />
               </Button>
             </>
