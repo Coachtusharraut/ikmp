@@ -352,14 +352,20 @@ function CoachCourses() {
       if (c.id) {
         const { error } = await supabase.from("courses").update(payload).eq("id", c.id);
         if (error) throw error;
+        return { ...c, ...payload };
       } else {
-        const { error } = await supabase.from("courses").insert({ ...payload, created_by: user!.id });
+        const { data, error } = await supabase
+          .from("courses")
+          .insert({ ...payload, created_by: user!.id })
+          .select("*")
+          .single();
         if (error) throw error;
+        return data;
       }
     },
-    onSuccess: () => {
-      toast.success("Course saved");
-      setEditing(null);
+    onSuccess: (savedCourse, submittedCourse) => {
+      toast.success(submittedCourse.id ? "Course saved" : "Course saved — add attachments below");
+      setEditing(submittedCourse.id ? null : savedCourse);
       qc.invalidateQueries({ queryKey: ["coach_courses"] });
       qc.invalidateQueries({ queryKey: ["courses"] });
     },
@@ -488,7 +494,7 @@ export function CourseEditor({
                 onChange={(e) => update("video_type", e.target.value)}
               >
                 <option value="youtube">YouTube</option>
-                <option value="upload">Upload (URL)</option>
+                <option value="upload">Video file / direct URL</option>
               </select>
             </div>
             <div>
