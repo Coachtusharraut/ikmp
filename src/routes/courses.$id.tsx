@@ -173,6 +173,8 @@ function CourseDetail() {
     },
     onError: (e: any) => toast.error(e.message),
   });
+
+  const enrolFree = useMutation({
     mutationFn: async () => {
       if (!user || !course) return;
       const { error } = await supabase.from("course_enrollments").insert({
