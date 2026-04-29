@@ -18,7 +18,16 @@ type Props = {
 export function ProtectedVideo({ url, type, title }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const embedUrl = type === "youtube" ? toYouTubeEmbed(url) : url;
+  // Auto-detect: if URL clearly points to YouTube/Vimeo, use iframe regardless of stored type.
+  const isYouTube = /(?:youtube\.com|youtu\.be)/i.test(url);
+  const isVimeo = /vimeo\.com/i.test(url);
+  const useIframe = isYouTube || isVimeo || type === "youtube";
+
+  const embedUrl = isYouTube
+    ? toYouTubeEmbed(url)
+    : isVimeo
+      ? toVimeoEmbed(url)
+      : url;
 
   return (
     <div
@@ -27,7 +36,7 @@ export function ProtectedVideo({ url, type, title }: Props) {
       className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black select-none"
       style={{ userSelect: "none", WebkitUserSelect: "none" }}
     >
-      {type === "youtube" ? (
+      {useIframe ? (
         <iframe
           src={embedUrl}
           title={title ?? "Video"}
@@ -47,7 +56,7 @@ export function ProtectedVideo({ url, type, title }: Props) {
         />
       )}
 
-      {type === "youtube" && (
+      {isYouTube && (
         <div
           aria-hidden
           className="absolute bottom-0 right-0 h-10 w-24 pointer-events-auto z-[1]"
@@ -78,6 +87,17 @@ function toYouTubeEmbed(input: string): string {
       disablekb: "1",
     });
     return `https://www.youtube.com/embed/${id}?${params.toString()}`;
+  } catch {
+    return input;
+  }
+}
+
+function toVimeoEmbed(input: string): string {
+  try {
+    const u = new URL(input);
+    const id = u.pathname.split("/").filter(Boolean).pop();
+    if (!id) return input;
+    return `https://player.vimeo.com/video/${id}`;
   } catch {
     return input;
   }
