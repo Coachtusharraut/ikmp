@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { ProtectedVideo } from "@/components/ProtectedVideo";
-import { ArrowLeft, CheckCircle2, Lock, FileText, BookOpen } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Lock, FileText, BookOpen, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Linkify } from "@/lib/linkify";
 
