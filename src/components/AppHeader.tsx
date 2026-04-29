@@ -35,37 +35,62 @@ export function AppHeader() {
               </SheetHeader>
               <nav className="mt-6 flex flex-col gap-1">
                 <SheetClose asChild>
-                  <Link to="/" className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent">
+                  <Link
+                    to="/"
+                    className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent"
+                    activeProps={{ className: "px-3 py-2 rounded-md text-sm bg-spice text-spice-foreground font-semibold shadow-sm" }}
+                    activeOptions={{ exact: true }}
+                  >
                     Recipes
                   </Link>
                 </SheetClose>
                 <SheetClose asChild>
-                  <Link to="/courses" className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent">
+                  <Link
+                    to="/courses"
+                    className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent"
+                    activeProps={{ className: "px-3 py-2 rounded-md text-sm bg-spice text-spice-foreground font-semibold shadow-sm" }}
+                  >
                     Courses
                   </Link>
                 </SheetClose>
                 {user && (
                   <>
                     <SheetClose asChild>
-                      <Link to="/planner" className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent">
+                      <Link
+                        to="/planner"
+                        className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent"
+                        activeProps={{ className: "px-3 py-2 rounded-md text-sm bg-spice text-spice-foreground font-semibold shadow-sm" }}
+                      >
                         This Week
                       </Link>
                     </SheetClose>
                     <SheetClose asChild>
-                      <Link to="/grocery" className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent">
+                      <Link
+                        to="/grocery"
+                        className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent"
+                        activeProps={{ className: "px-3 py-2 rounded-md text-sm bg-spice text-spice-foreground font-semibold shadow-sm" }}
+                      >
                         Grocery list
                       </Link>
                     </SheetClose>
                     {isCoach && !isAdmin && (
                       <SheetClose asChild>
-                        <Link to="/coach" className="px-3 py-2 rounded-md text-sm text-spice hover:bg-accent flex items-center gap-2">
+                        <Link
+                          to="/coach"
+                          className="px-3 py-2 rounded-md text-sm text-spice hover:bg-accent flex items-center gap-2"
+                          activeProps={{ className: "px-3 py-2 rounded-md text-sm bg-spice text-spice-foreground font-semibold shadow-sm flex items-center gap-2" }}
+                        >
                           <Sparkles className="size-4" /> Coach studio
                         </Link>
                       </SheetClose>
                     )}
                     {isAdmin && (
                       <SheetClose asChild>
-                        <Link to="/admin" className="px-3 py-2 rounded-md text-sm text-spice hover:bg-accent flex items-center gap-2">
+                        <Link
+                          to="/admin"
+                          className="px-3 py-2 rounded-md text-sm text-spice hover:bg-accent flex items-center gap-2"
+                          activeProps={{ className: "px-3 py-2 rounded-md text-sm bg-spice text-spice-foreground font-semibold shadow-sm flex items-center gap-2" }}
+                        >
                           <ShieldCheck className="size-4" /> Admin
                         </Link>
                       </SheetClose>
@@ -114,27 +139,52 @@ export function AppHeader() {
         </div>
 
         <nav className="hidden md:flex items-center gap-1">
-          <Link to="/" className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition" activeProps={{ className: "px-3 py-2 text-sm text-foreground font-medium" }} activeOptions={{ exact: true }}>
+          <Link
+            to="/"
+            className="px-3 py-1.5 rounded-full text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition"
+            activeProps={{ className: "px-3 py-1.5 rounded-full text-sm bg-spice text-spice-foreground font-semibold shadow-sm" }}
+            activeOptions={{ exact: true }}
+          >
             Recipes
           </Link>
-          <Link to="/courses" className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition flex items-center gap-1" activeProps={{ className: "px-3 py-2 text-sm text-foreground font-medium flex items-center gap-1" }}>
+          <Link
+            to="/courses"
+            className="px-3 py-1.5 rounded-full text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition flex items-center gap-1"
+            activeProps={{ className: "px-3 py-1.5 rounded-full text-sm bg-spice text-spice-foreground font-semibold shadow-sm flex items-center gap-1" }}
+          >
             <GraduationCap className="size-4" /> Courses
           </Link>
           {user && (
             <>
-              <Link to="/planner" className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition" activeProps={{ className: "px-3 py-2 text-sm text-foreground font-medium" }}>
+              <Link
+                to="/planner"
+                className="px-3 py-1.5 rounded-full text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition"
+                activeProps={{ className: "px-3 py-1.5 rounded-full text-sm bg-spice text-spice-foreground font-semibold shadow-sm" }}
+              >
                 This Week
               </Link>
-              <Link to="/grocery" className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition" activeProps={{ className: "px-3 py-2 text-sm text-foreground font-medium" }}>
+              <Link
+                to="/grocery"
+                className="px-3 py-1.5 rounded-full text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition"
+                activeProps={{ className: "px-3 py-1.5 rounded-full text-sm bg-spice text-spice-foreground font-semibold shadow-sm" }}
+              >
                 Grocery list
               </Link>
               {isCoach && !isAdmin && (
-                <Link to="/coach" className="px-3 py-2 text-sm text-spice hover:opacity-80 transition flex items-center gap-1" activeProps={{ className: "px-3 py-2 text-sm text-spice font-medium flex items-center gap-1" }}>
+                <Link
+                  to="/coach"
+                  className="px-3 py-1.5 rounded-full text-sm text-spice hover:bg-accent transition flex items-center gap-1"
+                  activeProps={{ className: "px-3 py-1.5 rounded-full text-sm bg-spice text-spice-foreground font-semibold shadow-sm flex items-center gap-1" }}
+                >
                   <Sparkles className="size-4" /> Coach
                 </Link>
               )}
               {isAdmin && (
-                <Link to="/admin" className="px-3 py-2 text-sm text-spice hover:opacity-80 transition flex items-center gap-1" activeProps={{ className: "px-3 py-2 text-sm text-spice font-medium flex items-center gap-1" }}>
+                <Link
+                  to="/admin"
+                  className="px-3 py-1.5 rounded-full text-sm text-spice hover:bg-accent transition flex items-center gap-1"
+                  activeProps={{ className: "px-3 py-1.5 rounded-full text-sm bg-spice text-spice-foreground font-semibold shadow-sm flex items-center gap-1" }}
+                >
                   <ShieldCheck className="size-4" /> Admin
                 </Link>
               )}
