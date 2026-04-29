@@ -189,6 +189,15 @@ function AdminPage() {
         <SiteSettingsManager />
       </div>
 
+      {/* Coaches */}
+      <CoachesManager />
+
+      {/* Delete requests */}
+      <DeleteRequestsManager />
+
+      {/* Courses */}
+      <CoursesManager />
+
       {/* Sections */}
       <div>
         <div className="flex items-end justify-between gap-4 mb-6 flex-wrap">
