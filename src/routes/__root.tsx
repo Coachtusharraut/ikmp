@@ -1,6 +1,6 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth";
 import { SiteSettingsProvider } from "@/lib/site-settings";
@@ -99,6 +99,29 @@ function RootComponent() {
         },
       })
   );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!("serviceWorker" in navigator)) return;
+    // Skip in iframe / Lovable preview to avoid stale-cache problems
+    let inIframe = false;
+    try {
+      inIframe = window.self !== window.top;
+    } catch {
+      inIframe = true;
+    }
+    const host = window.location.hostname;
+    const isPreview =
+      host.includes("lovableproject.com") || host.includes("id-preview--");
+    if (inIframe || isPreview) {
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((r) => r.unregister());
+      });
+      return;
+    }
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  }, []);
+
   return (
     <QueryClientProvider client={qc}>
       <AuthProvider>
