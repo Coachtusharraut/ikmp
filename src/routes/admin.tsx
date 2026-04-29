@@ -1279,6 +1279,17 @@ function CoursesManager() {
                 />
                 <span className="text-sm">Published</span>
               </label>
+
+              {editing.id && (
+                <div className="pt-4 border-t">
+                  <CourseLessonsEditor courseId={editing.id} />
+                </div>
+              )}
+              {!editing.id && (
+                <p className="text-xs text-muted-foreground border-t pt-3">
+                  Save the course first to add lessons, homework, and files.
+                </p>
+              )}
             </div>
             <DialogFooter>
               <Button variant="ghost" onClick={() => setEditing(null)}>
