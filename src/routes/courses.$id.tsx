@@ -207,6 +207,28 @@ function CourseDetail() {
         ) : null}
       </div>
 
+      {canWatch && courseFiles.length > 0 && (
+        <div className="mt-6 rounded-2xl border bg-card p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <FileText className="size-4 text-spice" />
+            <h2 className="font-display text-lg font-semibold">Course resources</h2>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {courseFiles.map((f) => (
+              <a
+                key={f.id}
+                href={f.file_url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border hover:bg-accent transition"
+              >
+                <FileText className="size-3.5" /> {f.name}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="mt-6 flex items-center gap-3">
         {enrolled ? (
           <span className="inline-flex items-center gap-2 text-sm text-spice">
