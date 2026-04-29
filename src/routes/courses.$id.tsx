@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ProtectedVideo } from "@/components/ProtectedVideo";
 import { ArrowLeft, CheckCircle2, Lock, FileText, BookOpen } from "lucide-react";
 import { toast } from "sonner";
+import { Linkify } from "@/lib/linkify";
 
 export const Route = createFileRoute("/courses/$id")({
   component: CourseDetail,
@@ -164,7 +165,7 @@ function CourseDetail() {
         {course.title}
       </h1>
       {course.description && (
-        <p className="mt-3 text-muted-foreground whitespace-pre-line">{course.description}</p>
+        <Linkify text={course.description} className="mt-3 text-muted-foreground" />
       )}
 
       {/* Intro video */}
@@ -227,9 +228,7 @@ function CourseDetail() {
                     </div>
                     <h3 className="font-display text-xl font-semibold mt-1">{l.title}</h3>
                     {l.description && (
-                      <p className="text-sm text-muted-foreground mt-2 whitespace-pre-line">
-                        {l.description}
-                      </p>
+                      <Linkify text={l.description} className="text-sm text-muted-foreground mt-2" />
                     )}
                   </div>
                   {l.video_url && (

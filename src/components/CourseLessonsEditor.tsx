@@ -186,7 +186,7 @@ export function CourseLessonsEditor({ courseId }: { courseId: string }) {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label>Video type</Label>
+                  <Label>Video type (optional)</Label>
                   <select
                     className="mt-1.5 w-full border rounded-md h-9 px-3 bg-background text-sm"
                     value={editing.video_type ?? "youtube"}
@@ -199,15 +199,18 @@ export function CourseLessonsEditor({ courseId }: { courseId: string }) {
                   </select>
                 </div>
                 <div>
-                  <Label>Video URL</Label>
+                  <Label>Video URL (optional)</Label>
                   <Input
                     value={editing.video_url ?? ""}
                     onChange={(e) => setEditing({ ...editing, video_url: e.target.value })}
                     className="mt-1.5"
-                    placeholder="https://..."
+                    placeholder="Leave empty if no video"
                   />
                 </div>
               </div>
+              <p className="text-xs text-muted-foreground -mt-1">
+                Tip: A lesson can have just a video, just a description with PDFs, or both. Nothing is required except a title.
+              </p>
               <div>
                 <Label>Homework / assignment</Label>
                 <Textarea
