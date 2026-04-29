@@ -109,6 +109,19 @@ function CourseDetail() {
     enabled: lessonIds.length > 0,
   });
 
+  const { data: courseFiles = [] } = useQuery({
+    queryKey: ["course_files", id],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("course_files")
+        .select("*")
+        .eq("course_id", id);
+      if (error) throw error;
+      return data as { id: string; name: string; file_url: string }[];
+    },
+    enabled: !!user && canWatch,
+  });
+
   const enrolFree = useMutation({
     mutationFn: async () => {
       if (!user || !course) return;
@@ -193,6 +206,28 @@ function CourseDetail() {
           </div>
         ) : null}
       </div>
+
+      {canWatch && courseFiles.length > 0 && (
+        <div className="mt-6 rounded-2xl border bg-card p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <FileText className="size-4 text-spice" />
+            <h2 className="font-display text-lg font-semibold">Course resources</h2>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {courseFiles.map((f) => (
+              <a
+                key={f.id}
+                href={f.file_url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border hover:bg-accent transition"
+              >
+                <FileText className="size-3.5" /> {f.name}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mt-6 flex items-center gap-3">
         {enrolled ? (
