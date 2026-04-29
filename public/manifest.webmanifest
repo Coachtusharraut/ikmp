@@ -1,0 +1,26 @@
+{
+  "name": "Coach Tushar Raut — Indian Kitchen Meal Plan",
+  "short_name": "@coachtusharraut",
+  "description": "Indian recipes, weekly meal plans and smart grocery lists by Coach Tushar Raut.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF5EC",
+  "theme_color": "#1a1410",
+  "categories": ["food", "lifestyle", "health"],
+  "icons": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
