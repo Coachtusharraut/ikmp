@@ -1,13 +1,16 @@
 import { Link, useRouter } from "@tanstack/react-router";
+import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useSiteSettings } from "@/lib/site-settings";
 import { Button } from "@/components/ui/button";
-import { ChefHat, LogOut, ShieldCheck } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { ChefHat, LogOut, ShieldCheck, Menu } from "lucide-react";
 
 export function AppHeader() {
   const { user, isAdmin, signOut } = useAuth();
   const router = useRouter();
   const settings = useSiteSettings();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b">
@@ -62,6 +65,7 @@ export function AppHeader() {
               <Button
                 variant="ghost"
                 size="sm"
+                className="hidden md:inline-flex"
                 onClick={async () => {
                   await signOut();
                   router.navigate({ to: "/login" });
@@ -71,10 +75,78 @@ export function AppHeader() {
               </Button>
             </>
           ) : (
-            <Button asChild size="sm" className="bg-spice text-spice-foreground hover:bg-spice/90">
+            <Button asChild size="sm" className="hidden md:inline-flex bg-spice text-spice-foreground hover:bg-spice/90">
               <Link to="/login">Sign in</Link>
             </Button>
           )}
+
+          {/* Mobile hamburger */}
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu">
+                <Menu className="size-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[280px] sm:w-[320px]">
+              <SheetHeader>
+                <SheetTitle className="font-display">{settings.site_name}</SheetTitle>
+              </SheetHeader>
+              <nav className="mt-6 flex flex-col gap-1">
+                <SheetClose asChild>
+                  <Link to="/" className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent">
+                    Recipes
+                  </Link>
+                </SheetClose>
+                {user && (
+                  <>
+                    <SheetClose asChild>
+                      <Link to="/planner" className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent">
+                        This Week
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link to="/grocery" className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent">
+                        Grocery list
+                      </Link>
+                    </SheetClose>
+                    {isAdmin && (
+                      <SheetClose asChild>
+                        <Link to="/admin" className="px-3 py-2 rounded-md text-sm text-spice hover:bg-accent flex items-center gap-2">
+                          <ShieldCheck className="size-4" /> Admin
+                        </Link>
+                      </SheetClose>
+                    )}
+                  </>
+                )}
+              </nav>
+
+              <div className="mt-6 border-t pt-4">
+                {user ? (
+                  <>
+                    <div className="px-3 text-xs text-muted-foreground truncate mb-2">{user.email}</div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={async () => {
+                        await signOut();
+                        setMobileOpen(false);
+                        router.navigate({ to: "/login" });
+                      }}
+                    >
+                      <LogOut className="size-4 mr-2" /> Sign out
+                    </Button>
+                  </>
+                ) : (
+                  <SheetClose asChild>
+                    <Button asChild size="sm" className="w-full bg-spice text-spice-foreground hover:bg-spice/90">
+                      <Link to="/login">Sign in</Link>
+                    </Button>
+                  </SheetClose>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
