@@ -229,6 +229,19 @@ export function CourseLessonsEditor({ courseId }: { courseId: string }) {
                   className="mt-1.5"
                 />
               </div>
+              {editing.id ? (
+                <div className="border-t pt-3">
+                  <Label>Attachments</Label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Add downloadable PDFs, worksheets, or any file your learners should keep.
+                  </p>
+                  <LessonFiles lessonId={editing.id} />
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground border-t pt-3">
+                  Save the lesson first to attach files.
+                </p>
+              )}
             </div>
             <DialogFooter>
               <Button variant="ghost" onClick={() => setEditing(null)}>
