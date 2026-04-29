@@ -17,6 +17,7 @@ import {
 import { Pencil, Plus, Trash2, ShieldCheck, FolderPlus, Upload, Palette } from "lucide-react";
 import { toast } from "sonner";
 import type { Recipe, Ingredient } from "@/lib/types";
+import { CourseLessonsEditor } from "@/components/CourseLessonsEditor";
 
 type Section = { id: string; name: string; description: string | null; sort_order: number };
 type RecipeSectionLink = { recipe_id: string; section_id: string };
@@ -1194,7 +1195,7 @@ function CoursesManager() {
 
       {editing && (
         <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editing.id ? "Edit course" : "New course"}</DialogTitle>
             </DialogHeader>
