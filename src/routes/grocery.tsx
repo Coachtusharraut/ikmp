@@ -61,7 +61,7 @@ function Grocery() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("meal_plan_items")
-        .select("servings, recipes(*)")
+        .select("servings, times_per_week, recipes(*)")
         .eq("week_start", week);
       if (error) throw error;
       return data as unknown as PlanRow[];
