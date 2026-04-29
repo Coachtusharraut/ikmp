@@ -56,7 +56,7 @@ export function ProtectedVideo({ url, type, title }: Props) {
         />
       )}
 
-      {type === "youtube" && (
+      {isYouTube && (
         <div
           aria-hidden
           className="absolute bottom-0 right-0 h-10 w-24 pointer-events-auto z-[1]"
