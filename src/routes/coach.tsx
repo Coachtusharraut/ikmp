@@ -532,9 +532,10 @@ export function CourseEditor({
 }
 
 import { useEffect } from "react";
-function useStateSync<T>(value: T, setter: (v: T) => void) {
+function useStateSync<T>(value: T | null, setter: (v: T) => void) {
   useEffect(() => {
-    setter(value);
+    if (value) setter(value);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 }
+
