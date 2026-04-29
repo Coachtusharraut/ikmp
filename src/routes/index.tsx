@@ -91,24 +91,36 @@ function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="container mx-auto px-4 pt-12 pb-10">
-        <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-spice mb-4">
-            <Sparkles className="size-3.5" /> {settings.site_name} · {settings.tagline}
-          </div>
-          <h1 className="font-display text-5xl md:text-6xl font-semibold leading-[1.05] tracking-tight">
-            {settings.hero_title}
-          </h1>
-          <p className="mt-5 text-lg text-muted-foreground max-w-xl">
-            {settings.hero_subtitle}
-          </p>
-          {!user && (
-            <div className="mt-7 flex gap-3">
-              <Button asChild size="lg" className="bg-spice text-spice-foreground hover:bg-spice/90">
-                <Link to="/login">Get started</Link>
-              </Button>
+      <section className="relative overflow-hidden">
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10"
+          style={{ background: "var(--gradient-warm)" }}
+        />
+        <div
+          aria-hidden
+          className="absolute -top-32 -right-32 size-96 rounded-full blur-3xl opacity-40 -z-10"
+          style={{ background: "var(--gradient-spice)" }}
+        />
+        <div className="container mx-auto px-4 pt-16 md:pt-24 pb-16">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] text-spice mb-5 px-3 py-1.5 rounded-full bg-card/60 backdrop-blur border border-border/60">
+              <Sparkles className="size-3" /> {settings.site_name} · {settings.tagline}
             </div>
-          )}
+            <h1 className="font-display text-5xl md:text-7xl font-light leading-[1.02] tracking-[-0.03em]">
+              {settings.hero_title}
+            </h1>
+            <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
+              {settings.hero_subtitle}
+            </p>
+            {!user && (
+              <div className="mt-8 flex gap-3">
+                <Button asChild size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full px-7 h-12 text-sm tracking-wide shadow-[var(--shadow-elegant)]">
+                  <Link to="/login">Start your week →</Link>
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
