@@ -1,17 +1,19 @@
 {
-  "id": "/",
+  "id": "https://ikmp.lovable.app/",
   "name": "Coach Tushar Raut — Indian Kitchen Meal Plan",
   "short_name": "@coachtusharraut",
   "description": "Indian recipes, weekly meal plans and smart grocery lists by Coach Tushar Raut.",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "https://ikmp.lovable.app/",
+  "scope": "https://ikmp.lovable.app/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#FAF5EC",
   "theme_color": "#1a1410",
   "lang": "en",
   "dir": "ltr",
   "categories": ["food", "lifestyle", "health"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icon-192.png",
