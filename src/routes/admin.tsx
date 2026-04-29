@@ -17,6 +17,7 @@ import {
 import { Pencil, Plus, Trash2, ShieldCheck, FolderPlus, Upload, Palette } from "lucide-react";
 import { toast } from "sonner";
 import type { Recipe, Ingredient } from "@/lib/types";
+import { CourseLessonsEditor } from "@/components/CourseLessonsEditor";
 
 type Section = { id: string; name: string; description: string | null; sort_order: number };
 type RecipeSectionLink = { recipe_id: string; section_id: string };
@@ -108,6 +109,8 @@ function AdminPage() {
         default_servings: Number(r.default_servings) || 4,
         instructions: r.instructions ?? null,
         ingredients: (r.ingredients ?? []) as any,
+        video_url: (r as any).video_url || null,
+        video_type: ((r as any).video_type as string) || "youtube",
         is_global: true,
       };
       let recipeId = r.id;
@@ -437,6 +440,29 @@ function RecipeEditorDialog({
             {r.image_url && (
               <img src={r.image_url} alt="" className="mt-2 h-24 rounded-lg object-cover" />
             )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Video type</Label>
+              <select
+                className="mt-1.5 w-full border rounded-md h-9 px-3 bg-background text-sm"
+                value={(r as any).video_type ?? "youtube"}
+                onChange={(e) => update("video_type" as any, e.target.value as any)}
+              >
+                <option value="youtube">YouTube</option>
+                <option value="upload">Upload (URL)</option>
+              </select>
+            </div>
+            <div>
+              <Label>Video URL (optional)</Label>
+              <Input
+                value={(r as any).video_url ?? ""}
+                onChange={(e) => update("video_url" as any, e.target.value as any)}
+                className="mt-1.5"
+                placeholder="https://youtube.com/watch?v=..."
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
@@ -864,6 +890,7 @@ function ColorField({
 function CoachesManager() {
   const qc = useQueryClient();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const { data: coaches = [] } = useQuery({
     queryKey: ["admin_coaches"],
@@ -877,22 +904,23 @@ function CoachesManager() {
     },
   });
 
-  const promote = useMutation({
-    mutationFn: async (targetEmail: string) => {
-      // Look up user_id by email isn't possible from client without service role.
-      // So admin must paste the user's UUID instead.
-      const userId = targetEmail.trim();
-      if (!/^[0-9a-f-]{36}$/i.test(userId)) {
-        throw new Error("Paste the user's UUID (from Auth → Users in Cloud).");
+  const createCoach = useMutation({
+    mutationFn: async () => {
+      const e = email.trim().toLowerCase();
+      if (!e || !password || password.length < 8) {
+        throw new Error("Email and password (min 8 chars) required");
       }
-      const { error } = await supabase
-        .from("user_roles")
-        .insert({ user_id: userId, role: "coach" });
+      const { data, error } = await supabase.functions.invoke("admin-create-coach", {
+        body: { email: e, password },
+      });
       if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      return data;
     },
     onSuccess: () => {
-      toast.success("Coach added");
+      toast.success("Coach created. Share the credentials with them.");
       setEmail("");
+      setPassword("");
       qc.invalidateQueries({ queryKey: ["admin_coaches"] });
     },
     onError: (e: any) => toast.error(e.message),
@@ -910,26 +938,41 @@ function CoachesManager() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  function genPassword() {
+    const chars = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";
+    let p = "";
+    for (let i = 0; i < 12; i++) p += chars[Math.floor(Math.random() * chars.length)];
+    setPassword(p);
+  }
+
   return (
     <div>
-      <h2 className="font-display text-3xl font-semibold mb-4">Coaches</h2>
+      <h2 className="font-display text-3xl font-semibold mb-2">Coaches</h2>
       <p className="text-sm text-muted-foreground mb-4">
-        Coaches can add recipes & courses, edit only their own, and request deletions for admin review.
-        To invite: ask the user to sign up, then paste their User ID below (find it in Cloud → Users).
+        Create a coach account by entering their email and a password. Share the credentials —
+        they sign in at the login page and can then add recipes & courses.
       </p>
-      <div className="flex gap-2 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto_auto] gap-2 mb-4">
         <Input
+          type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="User UUID (e.g. 8b3f… )"
-          className="font-mono text-xs"
+          placeholder="coach@example.com"
         />
+        <Input
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password (min 8 chars)"
+        />
+        <Button type="button" variant="outline" onClick={genPassword}>
+          Generate
+        </Button>
         <Button
-          onClick={() => promote.mutate(email)}
-          disabled={promote.isPending || !email}
+          onClick={() => createCoach.mutate()}
+          disabled={createCoach.isPending || !email || password.length < 8}
           className="bg-spice text-spice-foreground hover:bg-spice/90"
         >
-          <Plus className="size-4 mr-1" /> Add coach
+          <Plus className="size-4 mr-1" /> Create coach
         </Button>
       </div>
       <div className="bg-card border rounded-2xl divide-y">
@@ -951,8 +994,6 @@ function CoachesManager() {
     </div>
   );
 }
-
-/* ─────────────── Delete Requests Manager ─────────────── */
 function DeleteRequestsManager() {
   const qc = useQueryClient();
   const { data: requests = [] } = useQuery({
@@ -1154,7 +1195,7 @@ function CoursesManager() {
 
       {editing && (
         <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editing.id ? "Edit course" : "New course"}</DialogTitle>
             </DialogHeader>
@@ -1238,6 +1279,17 @@ function CoursesManager() {
                 />
                 <span className="text-sm">Published</span>
               </label>
+
+              {editing.id && (
+                <div className="pt-4 border-t">
+                  <CourseLessonsEditor courseId={editing.id} />
+                </div>
+              )}
+              {!editing.id && (
+                <p className="text-xs text-muted-foreground border-t pt-3">
+                  Save the course first to add lessons, homework, and files.
+                </p>
+              )}
             </div>
             <DialogFooter>
               <Button variant="ghost" onClick={() => setEditing(null)}>

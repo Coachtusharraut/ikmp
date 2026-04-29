@@ -1,1 +1,4 @@
 project_id = "xcxscrbuglzdvrxpjdut"
+
+[functions.admin-create-coach]
+verify_jwt = true

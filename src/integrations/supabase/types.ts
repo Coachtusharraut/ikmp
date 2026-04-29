@@ -49,6 +49,88 @@ export type Database = {
           },
         ]
       }
+      course_lesson_files: {
+        Row: {
+          created_at: string
+          file_url: string
+          id: string
+          lesson_id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          file_url: string
+          id?: string
+          lesson_id: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          file_url?: string
+          id?: string
+          lesson_id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_lesson_files_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "course_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_lessons: {
+        Row: {
+          course_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          homework: string | null
+          id: string
+          sort_order: number
+          title: string
+          updated_at: string
+          video_type: string
+          video_url: string | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          homework?: string | null
+          id?: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+          video_type?: string
+          video_url?: string | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          homework?: string | null
+          id?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          video_type?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           created_at: string

@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { useSiteSettings } from "@/lib/site-settings";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
@@ -39,8 +40,19 @@ function aggregate(rows: PlanRow[]): AggItem[] {
 
 function Grocery() {
   const { user } = useAuth();
+  const settings = useSiteSettings();
   const week = startOfWeekISO();
   const [checked, setChecked] = useState<Record<string, boolean>>({});
+
+  // Set the document title so the browser's "Save as PDF" filename uses your branding
+  // instead of the default app name. Restore on unmount.
+  useEffect(() => {
+    const original = document.title;
+    document.title = `Grocery List - ${settings.site_name} - ${formatWeekRange(week)}`;
+    return () => {
+      document.title = original;
+    };
+  }, [settings.site_name, week]);
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["meal_plan", week, "grocery"],
@@ -76,17 +88,7 @@ function Grocery() {
           </div>
           <h1 className="font-display text-4xl font-semibold">Your week's shopping</h1>
         </div>
-        <Button
-          variant="outline"
-          onClick={() => {
-            const original = document.title;
-            document.title = `Grocery List - @coachtusharraut - ${formatWeekRange(week)}`;
-            window.print();
-            setTimeout(() => {
-              document.title = original;
-            }, 500);
-          }}
-        >
+        <Button variant="outline" onClick={() => window.print()}>
           <Printer className="size-4 mr-2" /> Print
         </Button>
       </div>

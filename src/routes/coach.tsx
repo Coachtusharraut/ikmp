@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Sparkles, Plus, Pencil, Trash2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { CourseLessonsEditor } from "@/components/CourseLessonsEditor";
 
 export const Route = createFileRoute("/coach")({
   component: CoachStudio,
@@ -460,7 +461,7 @@ export function CourseEditor({
 
   return (
     <Dialog open={!!value} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{c.id ? "Edit course" : "New course"}</DialogTitle>
         </DialogHeader>
@@ -519,6 +520,17 @@ export function CourseEditor({
             />
             <span className="text-sm">Published (visible to users)</span>
           </label>
+
+          {c.id && (
+            <div className="pt-4 border-t">
+              <CourseLessonsEditor courseId={c.id} />
+            </div>
+          )}
+          {!c.id && (
+            <p className="text-xs text-muted-foreground border-t pt-3">
+              Save the course first to add lessons, homework, and files.
+            </p>
+          )}
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={onClose}>Cancel</Button>
