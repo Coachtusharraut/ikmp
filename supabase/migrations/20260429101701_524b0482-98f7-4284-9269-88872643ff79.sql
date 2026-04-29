@@ -1,0 +1,1 @@
+ALTER TABLE public.meal_plan_items ADD COLUMN IF NOT EXISTS times_per_week integer NOT NULL DEFAULT 1;

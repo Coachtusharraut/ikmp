@@ -17,6 +17,7 @@ type PlanRow = {
   id: string;
   recipe_id: string;
   servings: number;
+  times_per_week: number;
   week_start: string;
   recipes: Recipe;
 };
@@ -31,7 +32,7 @@ function Planner() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("meal_plan_items")
-        .select("id, recipe_id, servings, week_start, recipes(*)")
+        .select("id, recipe_id, servings, times_per_week, week_start, recipes(*)")
         .eq("week_start", week)
         .order("created_at");
       if (error) throw error;
@@ -40,11 +41,11 @@ function Planner() {
     enabled: !!user,
   });
 
-  const updateServings = useMutation({
-    mutationFn: async ({ id, servings }: { id: string; servings: number }) => {
+  const updateItem = useMutation({
+    mutationFn: async ({ id, patch }: { id: string; patch: { servings?: number; times_per_week?: number } }) => {
       const { error } = await supabase
         .from("meal_plan_items")
-        .update({ servings })
+        .update(patch)
         .eq("id", id);
       if (error) throw error;
     },
@@ -122,22 +123,39 @@ function Planner() {
                   <Clock className="size-3" />
                   {it.recipes.prep_time_min + it.recipes.cook_time_min} min
                 </div>
-                <div className="mt-4 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs text-muted-foreground">Servings</label>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground">People</label>
                     <Input
                       type="number"
                       min={1}
                       value={it.servings}
                       onChange={(e) =>
-                        updateServings.mutate({
+                        updateItem.mutate({
                           id: it.id,
-                          servings: Math.max(1, parseInt(e.target.value) || 1),
+                          patch: { servings: Math.max(1, parseInt(e.target.value) || 1) },
                         })
                       }
-                      className="w-16 h-8 text-center"
+                      className="h-9 text-center"
                     />
                   </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Times / week</label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={it.times_per_week ?? 1}
+                      onChange={(e) =>
+                        updateItem.mutate({
+                          id: it.id,
+                          patch: { times_per_week: Math.max(1, parseInt(e.target.value) || 1) },
+                        })
+                      }
+                      className="h-9 text-center"
+                    />
+                  </div>
+                </div>
+                <div className="mt-3 flex justify-end">
                   <Button
                     size="icon"
                     variant="ghost"

@@ -221,6 +221,7 @@ export type Database = {
           id: string
           recipe_id: string
           servings: number
+          times_per_week: number
           user_id: string
           week_start: string
         }
@@ -229,6 +230,7 @@ export type Database = {
           id?: string
           recipe_id: string
           servings?: number
+          times_per_week?: number
           user_id: string
           week_start: string
         }
@@ -237,6 +239,7 @@ export type Database = {
           id?: string
           recipe_id?: string
           servings?: number
+          times_per_week?: number
           user_id?: string
           week_start?: string
         }

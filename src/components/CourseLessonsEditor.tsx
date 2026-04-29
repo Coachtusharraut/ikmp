@@ -97,8 +97,13 @@ export function CourseLessonsEditor({ courseId }: { courseId: string }) {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="font-display text-xl font-semibold">Lessons</h3>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <h3 className="font-display text-xl font-semibold">Lessons</h3>
+          <p className="text-xs text-muted-foreground">
+            A course can have unlimited lessons — each with its own video, homework and file attachments.
+          </p>
+        </div>
         <Button
           size="sm"
           onClick={() =>
@@ -117,7 +122,7 @@ export function CourseLessonsEditor({ courseId }: { courseId: string }) {
         </Button>
       </div>
       {lessons.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No lessons yet.</p>
+        <p className="text-sm text-muted-foreground">No lessons yet — click "Add lesson" to start.</p>
       ) : (
         <div className="border rounded-xl divide-y bg-card">
           {lessons.map((l, i) => (
@@ -224,6 +229,19 @@ export function CourseLessonsEditor({ courseId }: { courseId: string }) {
                   className="mt-1.5"
                 />
               </div>
+              {editing.id ? (
+                <div className="border-t pt-3">
+                  <Label>Attachments</Label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Add downloadable PDFs, worksheets, or any file your learners should keep.
+                  </p>
+                  <LessonFiles lessonId={editing.id} />
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground border-t pt-3">
+                  Save the lesson first to attach files.
+                </p>
+              )}
             </div>
             <DialogFooter>
               <Button variant="ghost" onClick={() => setEditing(null)}>

@@ -887,20 +887,30 @@ function ColorField({
 }
 
 /* ─────────────── Coaches Manager ─────────────── */
+type CoachRow = {
+  id: string;
+  user_id: string;
+  role: string;
+  email: string;
+  created_at: string;
+};
+
 function CoachesManager() {
   const qc = useQueryClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [resetFor, setResetFor] = useState<CoachRow | null>(null);
+  const [newPassword, setNewPassword] = useState("");
 
   const { data: coaches = [] } = useQuery({
     queryKey: ["admin_coaches"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("id,user_id,role,created_at")
-        .in("role", ["coach", "admin"]);
+      const { data, error } = await supabase.functions.invoke("admin-create-coach", {
+        body: { action: "list" },
+      });
       if (error) throw error;
-      return data;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      return ((data as any)?.coaches ?? []) as CoachRow[];
     },
   });
 
@@ -911,7 +921,7 @@ function CoachesManager() {
         throw new Error("Email and password (min 8 chars) required");
       }
       const { data, error } = await supabase.functions.invoke("admin-create-coach", {
-        body: { email: e, password },
+        body: { action: "create", email: e, password },
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
@@ -922,6 +932,23 @@ function CoachesManager() {
       setEmail("");
       setPassword("");
       qc.invalidateQueries({ queryKey: ["admin_coaches"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const updatePassword = useMutation({
+    mutationFn: async ({ user_id, pwd }: { user_id: string; pwd: string }) => {
+      if (!pwd || pwd.length < 8) throw new Error("Password must be at least 8 characters");
+      const { data, error } = await supabase.functions.invoke("admin-create-coach", {
+        body: { action: "update_password", user_id, password: pwd },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+    },
+    onSuccess: () => {
+      toast.success("Password updated. Share the new password with the coach.");
+      setResetFor(null);
+      setNewPassword("");
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -938,11 +965,11 @@ function CoachesManager() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  function genPassword() {
+  function makePassword() {
     const chars = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";
     let p = "";
     for (let i = 0; i < 12; i++) p += chars[Math.floor(Math.random() * chars.length)];
-    setPassword(p);
+    return p;
   }
 
   return (
@@ -964,7 +991,7 @@ function CoachesManager() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password (min 8 chars)"
         />
-        <Button type="button" variant="outline" onClick={genPassword}>
+        <Button type="button" variant="outline" onClick={() => setPassword(makePassword())}>
           Generate
         </Button>
         <Button
@@ -976,14 +1003,22 @@ function CoachesManager() {
         </Button>
       </div>
       <div className="bg-card border rounded-2xl divide-y">
-        {coaches.map((c: any) => (
-          <div key={c.id} className="p-3 flex items-center gap-3 text-sm">
-            <span className="font-mono text-xs text-muted-foreground flex-1 truncate">{c.user_id}</span>
+        {coaches.map((c) => (
+          <div key={c.id} className="p-3 flex flex-wrap items-center gap-3 text-sm">
+            <div className="flex-1 min-w-0">
+              <div className="font-medium truncate">{c.email || <span className="text-muted-foreground italic">unknown email</span>}</div>
+              <div className="text-xs text-muted-foreground font-mono truncate">{c.user_id}</div>
+            </div>
             <span className="text-xs px-2 py-0.5 rounded-full bg-accent">{c.role}</span>
             {c.role === "coach" && (
-              <Button size="sm" variant="ghost" className="text-destructive" onClick={() => demote.mutate(c.id)}>
-                Remove
-              </Button>
+              <>
+                <Button size="sm" variant="outline" onClick={() => { setResetFor(c); setNewPassword(makePassword()); }}>
+                  Change password
+                </Button>
+                <Button size="sm" variant="ghost" className="text-destructive" onClick={() => demote.mutate(c.id)}>
+                  Remove
+                </Button>
+              </>
             )}
           </div>
         ))}
@@ -991,6 +1026,36 @@ function CoachesManager() {
           <div className="p-4 text-sm text-muted-foreground">No coaches yet.</div>
         )}
       </div>
+
+      <Dialog open={!!resetFor} onOpenChange={(o) => !o && setResetFor(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change password — {resetFor?.email}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Label>New password (min 8 chars)</Label>
+            <div className="flex gap-2">
+              <Input value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+              <Button type="button" variant="outline" onClick={() => setNewPassword(makePassword())}>
+                Generate
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Share this password with the coach. They can sign in immediately.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setResetFor(null)}>Cancel</Button>
+            <Button
+              onClick={() => resetFor && updatePassword.mutate({ user_id: resetFor.user_id, pwd: newPassword })}
+              disabled={updatePassword.isPending || newPassword.length < 8}
+              className="bg-spice text-spice-foreground hover:bg-spice/90"
+            >
+              {updatePassword.isPending ? "Saving…" : "Update password"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
