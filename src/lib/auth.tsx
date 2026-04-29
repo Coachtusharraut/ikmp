@@ -6,6 +6,7 @@ type AuthCtx = {
   session: Session | null;
   user: User | null;
   isAdmin: boolean;
+  isCoach: boolean;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string) => Promise<{ error: string | null }>;
@@ -17,33 +18,35 @@ const AuthContext = createContext<AuthCtx | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isCoach, setIsCoach] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
       setSession(s);
       if (s?.user) {
-        setTimeout(() => checkAdmin(s.user.id), 0);
+        setTimeout(() => loadRoles(s.user.id), 0);
       } else {
         setIsAdmin(false);
+        setIsCoach(false);
       }
     });
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
-      if (data.session?.user) checkAdmin(data.session.user.id);
+      if (data.session?.user) loadRoles(data.session.user.id);
       setLoading(false);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  async function checkAdmin(userId: string) {
+  async function loadRoles(userId: string) {
     const { data } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-    setIsAdmin(!!data);
+      .eq("user_id", userId);
+    const roles = (data ?? []).map((r) => r.role);
+    setIsAdmin(roles.includes("admin"));
+    setIsCoach(roles.includes("coach") || roles.includes("admin"));
   }
 
   async function signIn(email: string, password: string) {
@@ -64,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ session, user: session?.user ?? null, isAdmin, loading, signIn, signUp, signOut }}
+      value={{ session, user: session?.user ?? null, isAdmin, isCoach, loading, signIn, signUp, signOut }}
     >
       {children}
     </AuthContext.Provider>

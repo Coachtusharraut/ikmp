@@ -77,7 +77,20 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  const [qc] = useState(() => new QueryClient());
+  // Stable QueryClient with sensible cache defaults to stop refetching on every nav
+  const [qc] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 5 * 60 * 1000, // 5 minutes
+            gcTime: 30 * 60 * 1000, // 30 minutes
+            refetchOnWindowFocus: false,
+            retry: 1,
+          },
+        },
+      })
+  );
   return (
     <QueryClientProvider client={qc}>
       <AuthProvider>
