@@ -1,13 +1,16 @@
 import { Link, useRouter } from "@tanstack/react-router";
+import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useSiteSettings } from "@/lib/site-settings";
 import { Button } from "@/components/ui/button";
-import { ChefHat, LogOut, ShieldCheck } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { ChefHat, LogOut, ShieldCheck, Menu } from "lucide-react";
 
 export function AppHeader() {
   const { user, isAdmin, signOut } = useAuth();
   const router = useRouter();
   const settings = useSiteSettings();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b">
