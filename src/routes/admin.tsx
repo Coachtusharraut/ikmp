@@ -805,7 +805,93 @@ function SiteSettingsManager() {
         />
       </div>
 
-      {/* Theme colours */}
+      {/* Intro video (home page) */}
+      <div className="rounded-xl border bg-background/50 p-5 space-y-4">
+        <div>
+          <Label className="text-base font-semibold">Home page intro video</Label>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Shown on the home page to all visitors (logged-in or not). Leave URL empty to hide.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label>Section title</Label>
+            <Input
+              value={s.intro_title}
+              onChange={(e) => up("intro_title", e.target.value)}
+              className="mt-1.5"
+            />
+          </div>
+          <div>
+            <Label>Video source</Label>
+            <select
+              value={s.intro_video_type}
+              onChange={(e) => up("intro_video_type", e.target.value as "youtube" | "upload")}
+              className="mt-1.5 flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+            >
+              <option value="youtube">YouTube / Vimeo URL</option>
+              <option value="upload">Uploaded file</option>
+            </select>
+          </div>
+          <div className="md:col-span-2">
+            <Label>Section subtitle</Label>
+            <Textarea
+              value={s.intro_subtitle}
+              onChange={(e) => up("intro_subtitle", e.target.value)}
+              className="mt-1.5"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <Label>Video URL</Label>
+            <div className="flex gap-2 mt-1.5">
+              <Input
+                value={s.intro_video_url ?? ""}
+                onChange={(e) => up("intro_video_url", e.target.value || null)}
+                placeholder="Paste YouTube/Vimeo URL or upload →"
+              />
+              <label className="inline-flex items-center gap-1 px-3 rounded-md border bg-card cursor-pointer hover:bg-accent text-sm">
+                <Upload className="size-4" />
+                <input
+                  type="file"
+                  accept="video/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const ext = file.name.split(".").pop();
+                    const path = `intro/intro-${Date.now()}.${ext}`;
+                    const { error } = await supabase.storage
+                      .from("intro-video")
+                      .upload(path, file, { upsert: true, contentType: file.type });
+                    if (error) {
+                      toast.error(error.message);
+                      return;
+                    }
+                    const { data } = supabase.storage.from("intro-video").getPublicUrl(path);
+                    up("intro_video_url", data.publicUrl);
+                    up("intro_video_type", "upload");
+                    toast.success("Video uploaded");
+                  }}
+                />
+              </label>
+              {s.intro_video_url && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => up("intro_video_url", null)}
+                >
+                  Remove
+                </Button>
+              )}
+            </div>
+            {s.intro_video_url && (
+              <p className="mt-2 text-xs text-muted-foreground break-all">{s.intro_video_url}</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+
       <div>
         <Label className="mb-2 block">Theme colours (oklch values)</Label>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
