@@ -5,10 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { RecipeCard } from "@/components/RecipeCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Sparkles } from "lucide-react";
+import { Search, Sparkles, PlayCircle } from "lucide-react";
 import type { Recipe } from "@/lib/types";
 import { useAuth } from "@/lib/auth";
 import { useSiteSettings } from "@/lib/site-settings";
+import { ProtectedVideo } from "@/components/ProtectedVideo";
 
 export const Route = createFileRoute("/")({
   component: Home,
