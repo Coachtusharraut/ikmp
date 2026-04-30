@@ -699,6 +699,10 @@ type SiteSettingsRow = {
   accent_color: string;
   font_display: string;
   font_body: string;
+  intro_video_url: string | null;
+  intro_video_type: "youtube" | "upload";
+  intro_title: string;
+  intro_subtitle: string;
 };
 
 function SiteSettingsManager() {
