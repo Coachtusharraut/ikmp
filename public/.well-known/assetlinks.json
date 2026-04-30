@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "app.coachtusharraut.ikmp",
       "sha256_cert_fingerprints": [
-        "9E:3B:6C:FB:F3:30:57:76:1E:4A:A6:1F:F1:39:AB:97:4A:7E:37:7E:A1:77:83:B2:5E:28:39:A5:29:9A:7C:FC"
+        "9E:3B:6C:FB:F3:30:57:76:1E:4A:A6:1F:F1:39:AB:97:4A:7E:37:7E:A1:77:83:B2:5E:28:39:A5:29:9A:7C:FC",
+        "A5:8B:52:15:57:CC:1B:E0:B8:2B:0E:03:9F:E8:E9:9F:45:6A:71:58:F8:24:BC:BF:8B:16:E6:71:FA:A3:F0:C7"
       ]
     }
   }
