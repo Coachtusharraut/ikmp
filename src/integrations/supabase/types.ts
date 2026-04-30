@@ -436,6 +436,10 @@ export type Database = {
           hero_subtitle: string
           hero_title: string
           id: string
+          intro_subtitle: string
+          intro_title: string
+          intro_video_type: string
+          intro_video_url: string | null
           logo_url: string | null
           meta_description: string
           primary_color: string
@@ -456,6 +460,10 @@ export type Database = {
           hero_subtitle?: string
           hero_title?: string
           id?: string
+          intro_subtitle?: string
+          intro_title?: string
+          intro_video_type?: string
+          intro_video_url?: string | null
           logo_url?: string | null
           meta_description?: string
           primary_color?: string
@@ -476,6 +484,10 @@ export type Database = {
           hero_subtitle?: string
           hero_title?: string
           id?: string
+          intro_subtitle?: string
+          intro_title?: string
+          intro_video_type?: string
+          intro_video_url?: string | null
           logo_url?: string | null
           meta_description?: string
           primary_color?: string
