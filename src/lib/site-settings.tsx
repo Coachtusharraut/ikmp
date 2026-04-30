@@ -18,6 +18,10 @@ export type SiteSettings = {
   accent_color: string;
   font_display: string;
   font_body: string;
+  intro_video_url: string | null;
+  intro_video_type: "youtube" | "upload";
+  intro_title: string;
+  intro_subtitle: string;
 };
 
 const DEFAULTS: SiteSettings = {
@@ -38,6 +42,10 @@ const DEFAULTS: SiteSettings = {
   accent_color: "oklch(0.93 0.04 65)",
   font_display: "Fraunces",
   font_body: "Inter",
+  intro_video_url: null,
+  intro_video_type: "youtube",
+  intro_title: "How to use this app",
+  intro_subtitle: "Watch this short intro to get the most out of your meal plan.",
 };
 
 const SiteSettingsCtx = createContext<SiteSettings>(DEFAULTS);

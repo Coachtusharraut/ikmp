@@ -5,10 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { RecipeCard } from "@/components/RecipeCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Sparkles } from "lucide-react";
+import { Search, Sparkles, PlayCircle } from "lucide-react";
 import type { Recipe } from "@/lib/types";
 import { useAuth } from "@/lib/auth";
 import { useSiteSettings } from "@/lib/site-settings";
+import { ProtectedVideo } from "@/components/ProtectedVideo";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -123,6 +124,46 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {/* Intro video — visible to everyone */}
+      {settings.intro_video_url && (
+        <section className="container mx-auto px-4 pt-4 pb-12">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] text-spice mb-3 px-3 py-1.5 rounded-full bg-card border border-border/60">
+                <PlayCircle className="size-3" /> Watch first
+              </div>
+              <h2 className="font-display text-3xl md:text-4xl font-light tracking-tight">
+                {settings.intro_title}
+              </h2>
+              {settings.intro_subtitle && (
+                <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
+                  {settings.intro_subtitle}
+                </p>
+              )}
+            </div>
+            <div className="rounded-2xl overflow-hidden shadow-[var(--shadow-elegant)] border border-border/60">
+              <ProtectedVideo
+                url={settings.intro_video_url}
+                type={settings.intro_video_type}
+                title={settings.intro_title}
+              />
+            </div>
+            {!user && (
+              <div className="mt-8 flex flex-col items-center gap-3">
+                <p className="text-sm text-muted-foreground">Ready to start? It only takes a minute.</p>
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-spice text-spice-foreground hover:bg-spice/90 rounded-full px-10 h-12 text-sm tracking-wide shadow-[var(--shadow-elegant)]"
+                >
+                  <Link to="/login">Sign in to get started →</Link>
+                </Button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Library */}
       <section className="container mx-auto px-4 pb-20">
