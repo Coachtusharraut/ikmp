@@ -18,6 +18,7 @@ import { toast } from "sonner";
 export type Lesson = {
   id: string;
   course_id: string;
+  module_id: string | null;
   title: string;
   description: string | null;
   video_url: string | null;
@@ -33,18 +34,28 @@ type LessonFile = {
   file_url: string;
 };
 
-export function CourseLessonsEditor({ courseId }: { courseId: string }) {
+export function CourseLessonsEditor({
+  courseId,
+  moduleId,
+}: {
+  courseId: string;
+  /** Filter to a specific module. Pass `null` for unassigned-only. Omit for all. */
+  moduleId?: string | null;
+}) {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Partial<Lesson> | null>(null);
 
   const { data: lessons = [] } = useQuery({
-    queryKey: ["lessons", courseId],
+    queryKey: ["lessons", courseId, moduleId === undefined ? "all" : moduleId ?? "none"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("course_lessons")
         .select("*")
         .eq("course_id", courseId)
         .order("sort_order", { ascending: true });
+      if (moduleId === null) q = q.is("module_id", null);
+      else if (moduleId) q = q.eq("module_id", moduleId);
+      const { data, error } = await q;
       if (error) throw error;
       return data as Lesson[];
     },
@@ -54,6 +65,7 @@ export function CourseLessonsEditor({ courseId }: { courseId: string }) {
     mutationFn: async (l: Partial<Lesson>) => {
       const payload = {
         course_id: courseId,
+        module_id: moduleId ?? l.module_id ?? null,
         title: l.title!,
         description: l.description ?? null,
         video_url: l.video_url || null,
