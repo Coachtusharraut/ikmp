@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Sparkles, Plus, Pencil, Trash2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { CourseLessonsEditor } from "@/components/CourseLessonsEditor";
+import { CourseModulesEditor } from "@/components/CourseModulesEditor";
 import { CourseFilesEditor } from "@/components/CourseFilesEditor";
 
 export const Route = createFileRoute("/coach")({

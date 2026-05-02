@@ -1448,7 +1448,7 @@ function CoursesManager() {
                     <CourseFilesEditor courseId={editing.id} />
                   </div>
                   <div className="pt-4 border-t">
-                    <CourseLessonsEditor courseId={editing.id} />
+                    <CourseModulesEditor courseId={editing.id} />
                   </div>
                 </>
               )}
