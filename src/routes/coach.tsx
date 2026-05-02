@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Sparkles, Plus, Pencil, Trash2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { CourseLessonsEditor } from "@/components/CourseLessonsEditor";
+import { CourseModulesEditor } from "@/components/CourseModulesEditor";
 import { CourseFilesEditor } from "@/components/CourseFilesEditor";
 
 export const Route = createFileRoute("/coach")({
@@ -534,7 +534,7 @@ export function CourseEditor({
                 <CourseFilesEditor courseId={c.id} />
               </div>
               <div className="pt-4 border-t">
-                <CourseLessonsEditor courseId={c.id} />
+                <CourseModulesEditor courseId={c.id} />
               </div>
             </>
           )}

@@ -21,6 +21,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as RecipeIdRouteImport } from './routes/recipe.$id'
 import { Route as CoursesIdRouteImport } from './routes/courses.$id'
+import { Route as AdminToolsRouteImport } from './routes/admin.tools'
 
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
@@ -82,10 +83,15 @@ const CoursesIdRoute = CoursesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => CoursesRoute,
 } as any)
+const AdminToolsRoute = AdminToolsRouteImport.update({
+  id: '/tools',
+  path: '/tools',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/coach': typeof CoachRoute
   '/courses': typeof CoursesRouteWithChildren
   '/delete-account': typeof DeleteAccountRoute
@@ -93,19 +99,21 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
   '/privacy': typeof PrivacyRoute
+  '/admin/tools': typeof AdminToolsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
   '/courses/': typeof CoursesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/coach': typeof CoachRoute
   '/delete-account': typeof DeleteAccountRoute
   '/grocery': typeof GroceryRoute
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
   '/privacy': typeof PrivacyRoute
+  '/admin/tools': typeof AdminToolsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
   '/courses': typeof CoursesIndexRoute
@@ -113,7 +121,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/coach': typeof CoachRoute
   '/courses': typeof CoursesRouteWithChildren
   '/delete-account': typeof DeleteAccountRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
   '/privacy': typeof PrivacyRoute
+  '/admin/tools': typeof AdminToolsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
   '/courses/': typeof CoursesIndexRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/planner'
     | '/privacy'
+    | '/admin/tools'
     | '/courses/$id'
     | '/recipe/$id'
     | '/courses/'
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/planner'
     | '/privacy'
+    | '/admin/tools'
     | '/courses/$id'
     | '/recipe/$id'
     | '/courses'
@@ -164,6 +175,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/planner'
     | '/privacy'
+    | '/admin/tools'
     | '/courses/$id'
     | '/recipe/$id'
     | '/courses/'
@@ -171,7 +183,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   CoachRoute: typeof CoachRoute
   CoursesRoute: typeof CoursesRouteWithChildren
   DeleteAccountRoute: typeof DeleteAccountRoute
@@ -268,8 +280,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesIdRouteImport
       parentRoute: typeof CoursesRoute
     }
+    '/admin/tools': {
+      id: '/admin/tools'
+      path: '/tools'
+      fullPath: '/admin/tools'
+      preLoaderRoute: typeof AdminToolsRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminToolsRoute: typeof AdminToolsRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminToolsRoute: AdminToolsRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface CoursesRouteChildren {
   CoursesIdRoute: typeof CoursesIdRoute
@@ -286,7 +315,7 @@ const CoursesRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   CoachRoute: CoachRoute,
   CoursesRoute: CoursesRouteWithChildren,
   DeleteAccountRoute: DeleteAccountRoute,
@@ -299,12 +328,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

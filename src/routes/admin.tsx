@@ -17,7 +17,7 @@ import {
 import { Pencil, Plus, Trash2, ShieldCheck, FolderPlus, Upload, Palette } from "lucide-react";
 import { toast } from "sonner";
 import type { Recipe, Ingredient } from "@/lib/types";
-import { CourseLessonsEditor } from "@/components/CourseLessonsEditor";
+import { CourseModulesEditor } from "@/components/CourseModulesEditor";
 import { CourseFilesEditor } from "@/components/CourseFilesEditor";
 
 type Section = { id: string; name: string; description: string | null; sort_order: number };
@@ -1448,7 +1448,7 @@ function CoursesManager() {
                     <CourseFilesEditor courseId={editing.id} />
                   </div>
                   <div className="pt-4 border-t">
-                    <CourseLessonsEditor courseId={editing.id} />
+                    <CourseModulesEditor courseId={editing.id} />
                   </div>
                 </>
               )}
