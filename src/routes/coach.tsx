@@ -534,7 +534,7 @@ export function CourseEditor({
                 <CourseFilesEditor courseId={c.id} />
               </div>
               <div className="pt-4 border-t">
-                <CourseLessonsEditor courseId={c.id} />
+                <CourseModulesEditor courseId={c.id} />
               </div>
             </>
           )}
