@@ -27,11 +27,20 @@ type Course = {
 type Lesson = {
   id: string;
   course_id: string;
+  module_id: string | null;
   title: string;
   description: string | null;
   video_url: string | null;
   video_type: "youtube" | "upload";
   homework: string | null;
+  sort_order: number;
+};
+
+type Module = {
+  id: string;
+  course_id: string;
+  title: string;
+  description: string | null;
   sort_order: number;
 };
 
@@ -90,6 +99,20 @@ function CourseDetail() {
         .order("sort_order", { ascending: true });
       if (error) throw error;
       return data as Lesson[];
+    },
+    enabled: !!user && canWatch,
+  });
+
+  const { data: modules = [] } = useQuery({
+    queryKey: ["modules", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("course_modules")
+        .select("*")
+        .eq("course_id", id)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return data as Module[];
     },
     enabled: !!user && canWatch,
   });
