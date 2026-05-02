@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcement_dismissals: {
+        Row: {
+          announcement_id: string
+          dismissed_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          announcement_id: string
+          dismissed_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          announcement_id?: string
+          dismissed_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      announcements: {
+        Row: {
+          body_html: string
+          created_at: string
+          created_by: string | null
+          id: string
+          published: boolean
+          published_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body_html: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          published?: boolean
+          published_at?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body_html?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          published?: boolean
+          published_at?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       course_enrollments: {
         Row: {
           amount_paid: number
@@ -113,6 +167,7 @@ export type Database = {
           description: string | null
           homework: string | null
           id: string
+          module_id: string | null
           sort_order: number
           title: string
           updated_at: string
@@ -126,6 +181,7 @@ export type Database = {
           description?: string | null
           homework?: string | null
           id?: string
+          module_id?: string | null
           sort_order?: number
           title: string
           updated_at?: string
@@ -139,6 +195,7 @@ export type Database = {
           description?: string | null
           homework?: string | null
           id?: string
+          module_id?: string | null
           sort_order?: number
           title?: string
           updated_at?: string
@@ -154,6 +211,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      course_modules: {
+        Row: {
+          course_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       courses: {
         Row: {
@@ -300,6 +390,102 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      newsletter_log: {
+        Row: {
+          also_announcement: boolean
+          body_html: string
+          created_at: string
+          id: string
+          recipient_count: number
+          sent_by: string | null
+          subject: string
+        }
+        Insert: {
+          also_announcement?: boolean
+          body_html: string
+          created_at?: string
+          id?: string
+          recipient_count?: number
+          sent_by?: string | null
+          subject: string
+        }
+        Update: {
+          also_announcement?: boolean
+          body_html?: string
+          created_at?: string
+          id?: string
+          recipient_count?: number
+          sent_by?: string | null
+          subject?: string
+        }
+        Relationships: []
+      }
+      push_notifications_log: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          failed_count: number
+          icon_url: string | null
+          id: string
+          sent_count: number
+          title: string
+          url: string | null
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          failed_count?: number
+          icon_url?: string | null
+          id?: string
+          sent_count?: number
+          title: string
+          url?: string | null
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          failed_count?: number
+          icon_url?: string | null
+          id?: string
+          sent_count?: number
+          title?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       recipe_sections: {
         Row: {
@@ -532,6 +718,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_main_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user" | "coach"
