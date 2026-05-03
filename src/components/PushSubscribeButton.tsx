@@ -11,8 +11,17 @@ import {
 import { useAuth } from "@/lib/auth";
 
 function urlBase64ToUint8Array(base64String: string) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  // Sanitize: trim whitespace/newlines and strip any non-base64 chars
+  const cleaned = (base64String || "")
+    .trim()
+    .replace(/\s+/g, "")
+    .replace(/=+$/, "");
+  if (!cleaned) throw new Error("Empty VAPID public key");
+  const padding = "=".repeat((4 - (cleaned.length % 4)) % 4);
+  const base64 = (cleaned + padding).replace(/-/g, "+").replace(/_/g, "/");
+  if (!/^[A-Za-z0-9+/=]+$/.test(base64)) {
+    throw new Error("Invalid VAPID public key format");
+  }
   const raw = atob(base64);
   const arr = new Uint8Array(raw.length);
   for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
