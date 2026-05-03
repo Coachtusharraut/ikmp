@@ -5,6 +5,7 @@ import { useSiteSettings } from "@/lib/site-settings";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ChefHat, LogOut, ShieldCheck, Menu, GraduationCap, Sparkles } from "lucide-react";
+import { PushSubscribeButton } from "@/components/PushSubscribeButton";
 
 export function AppHeader() {
   const { user, isAdmin, isCoach, signOut } = useAuth();
@@ -193,6 +194,7 @@ export function AppHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          {user && <div className="hidden md:inline-flex"><PushSubscribeButton /></div>}
           {user ? (
             <>
               <span className="hidden sm:block text-xs text-muted-foreground max-w-[160px] truncate">
