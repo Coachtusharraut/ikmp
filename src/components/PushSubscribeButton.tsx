@@ -44,14 +44,25 @@ export function PushSubscribeButton() {
       "PushManager" in window &&
       "Notification" in window;
     setSupported(ok);
-    if (!ok) return;
+    if (!ok || !user) return;
     navigator.serviceWorker.ready
       .then((reg) => reg.pushManager.getSubscription())
-      .then((sub) => setSubscribed(!!sub))
+      .then((sub) => {
+        setSubscribed(!!sub);
+        // Auto-enable on first visit if not yet asked
+        if (!sub && Notification.permission === "default") {
+          const key = `push-auto-asked:${user.id}`;
+          if (!localStorage.getItem(key)) {
+            localStorage.setItem(key, "1");
+            void enable(true);
+          }
+        }
+      })
       .catch(() => {});
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
-  async function enable() {
+  async function enable(silent = false) {
     if (!user) {
       toast.error("Sign in first to enable notifications.");
       return;
