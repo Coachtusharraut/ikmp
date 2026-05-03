@@ -16,12 +16,12 @@ import { Route as GroceryRouteImport } from './routes/grocery'
 import { Route as DeleteAccountRouteImport } from './routes/delete-account'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CoachRouteImport } from './routes/coach'
+import { Route as AdminToolsRouteImport } from './routes/admin-tools'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as RecipeIdRouteImport } from './routes/recipe.$id'
 import { Route as CoursesIdRouteImport } from './routes/courses.$id'
-import { Route as AdminToolsRouteImport } from './routes/admin.tools'
 
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
@@ -58,6 +58,11 @@ const CoachRoute = CoachRouteImport.update({
   path: '/coach',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminToolsRoute = AdminToolsRouteImport.update({
+  id: '/admin-tools',
+  path: '/admin-tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -83,15 +88,11 @@ const CoursesIdRoute = CoursesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => CoursesRoute,
 } as any)
-const AdminToolsRoute = AdminToolsRouteImport.update({
-  id: '/tools',
-  path: '/tools',
-  getParentRoute: () => AdminRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
+  '/admin': typeof AdminRoute
+  '/admin-tools': typeof AdminToolsRoute
   '/coach': typeof CoachRoute
   '/courses': typeof CoursesRouteWithChildren
   '/delete-account': typeof DeleteAccountRoute
@@ -99,21 +100,20 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
   '/privacy': typeof PrivacyRoute
-  '/admin/tools': typeof AdminToolsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
   '/courses/': typeof CoursesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
+  '/admin': typeof AdminRoute
+  '/admin-tools': typeof AdminToolsRoute
   '/coach': typeof CoachRoute
   '/delete-account': typeof DeleteAccountRoute
   '/grocery': typeof GroceryRoute
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
   '/privacy': typeof PrivacyRoute
-  '/admin/tools': typeof AdminToolsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
   '/courses': typeof CoursesIndexRoute
@@ -121,7 +121,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
+  '/admin': typeof AdminRoute
+  '/admin-tools': typeof AdminToolsRoute
   '/coach': typeof CoachRoute
   '/courses': typeof CoursesRouteWithChildren
   '/delete-account': typeof DeleteAccountRoute
@@ -129,7 +130,6 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
   '/privacy': typeof PrivacyRoute
-  '/admin/tools': typeof AdminToolsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
   '/courses/': typeof CoursesIndexRoute
@@ -139,6 +139,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/admin-tools'
     | '/coach'
     | '/courses'
     | '/delete-account'
@@ -146,7 +147,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/planner'
     | '/privacy'
-    | '/admin/tools'
     | '/courses/$id'
     | '/recipe/$id'
     | '/courses/'
@@ -154,13 +154,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/admin-tools'
     | '/coach'
     | '/delete-account'
     | '/grocery'
     | '/login'
     | '/planner'
     | '/privacy'
-    | '/admin/tools'
     | '/courses/$id'
     | '/recipe/$id'
     | '/courses'
@@ -168,6 +168,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/admin-tools'
     | '/coach'
     | '/courses'
     | '/delete-account'
@@ -175,7 +176,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/planner'
     | '/privacy'
-    | '/admin/tools'
     | '/courses/$id'
     | '/recipe/$id'
     | '/courses/'
@@ -183,7 +183,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRouteWithChildren
+  AdminRoute: typeof AdminRoute
+  AdminToolsRoute: typeof AdminToolsRoute
   CoachRoute: typeof CoachRoute
   CoursesRoute: typeof CoursesRouteWithChildren
   DeleteAccountRoute: typeof DeleteAccountRoute
@@ -245,6 +246,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoachRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin-tools': {
+      id: '/admin-tools'
+      path: '/admin-tools'
+      fullPath: '/admin-tools'
+      preLoaderRoute: typeof AdminToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -280,25 +288,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesIdRouteImport
       parentRoute: typeof CoursesRoute
     }
-    '/admin/tools': {
-      id: '/admin/tools'
-      path: '/tools'
-      fullPath: '/admin/tools'
-      preLoaderRoute: typeof AdminToolsRouteImport
-      parentRoute: typeof AdminRoute
-    }
   }
 }
-
-interface AdminRouteChildren {
-  AdminToolsRoute: typeof AdminToolsRoute
-}
-
-const AdminRouteChildren: AdminRouteChildren = {
-  AdminToolsRoute: AdminToolsRoute,
-}
-
-const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface CoursesRouteChildren {
   CoursesIdRoute: typeof CoursesIdRoute
@@ -315,7 +306,8 @@ const CoursesRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRouteWithChildren,
+  AdminRoute: AdminRoute,
+  AdminToolsRoute: AdminToolsRoute,
   CoachRoute: CoachRoute,
   CoursesRoute: CoursesRouteWithChildren,
   DeleteAccountRoute: DeleteAccountRoute,
