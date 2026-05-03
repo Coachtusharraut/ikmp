@@ -180,7 +180,7 @@ function AdminPage() {
       {/* Quick links */}
       <div className="flex flex-wrap gap-2">
         <Button asChild className="bg-spice text-spice-foreground hover:bg-spice/90">
-          <Link to="/admin/tools">Users, Newsletter & Push →</Link>
+          <Link to="/admin-tools">Users, Newsletter & Push →</Link>
         </Button>
       </div>
 

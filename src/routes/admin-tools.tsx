@@ -18,7 +18,7 @@ import {
 import { sendNewsletter } from "@/server/newsletter.functions";
 import { sendPushToAll } from "@/server/push.functions";
 
-export const Route = createFileRoute("/admin/tools")({
+export const Route = createFileRoute("/admin-tools")({
   component: AdminTools,
 });
 
