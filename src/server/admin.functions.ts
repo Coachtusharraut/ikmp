@@ -17,7 +17,7 @@ async function assertAdmin(userId: string) {
 }
 
 // ========== LIST USERS WITH ROLES + STATS ==========
-export const listAllUsers = createServerFn({ method: "GET" })
+export const listAllUsers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context.userId);
