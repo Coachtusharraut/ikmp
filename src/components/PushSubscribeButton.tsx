@@ -11,8 +11,17 @@ import {
 import { useAuth } from "@/lib/auth";
 
 function urlBase64ToUint8Array(base64String: string) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  // Sanitize: trim whitespace/newlines and strip any non-base64 chars
+  const cleaned = (base64String || "")
+    .trim()
+    .replace(/\s+/g, "")
+    .replace(/=+$/, "");
+  if (!cleaned) throw new Error("Empty VAPID public key");
+  const padding = "=".repeat((4 - (cleaned.length % 4)) % 4);
+  const base64 = (cleaned + padding).replace(/-/g, "+").replace(/_/g, "/");
+  if (!/^[A-Za-z0-9+/=]+$/.test(base64)) {
+    throw new Error("Invalid VAPID public key format");
+  }
   const raw = atob(base64);
   const arr = new Uint8Array(raw.length);
   for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
@@ -35,14 +44,25 @@ export function PushSubscribeButton() {
       "PushManager" in window &&
       "Notification" in window;
     setSupported(ok);
-    if (!ok) return;
+    if (!ok || !user) return;
     navigator.serviceWorker.ready
       .then((reg) => reg.pushManager.getSubscription())
-      .then((sub) => setSubscribed(!!sub))
+      .then((sub) => {
+        setSubscribed(!!sub);
+        // Auto-enable on first visit if not yet asked
+        if (!sub && Notification.permission === "default") {
+          const key = `push-auto-asked:${user.id}`;
+          if (!localStorage.getItem(key)) {
+            localStorage.setItem(key, "1");
+            void enable(true);
+          }
+        }
+      })
       .catch(() => {});
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
-  async function enable() {
+  async function enable(silent = false) {
     if (!user) {
       toast.error("Sign in first to enable notifications.");
       return;
@@ -74,9 +94,9 @@ export function PushSubscribeButton() {
         },
       });
       setSubscribed(true);
-      toast.success("Notifications enabled.");
+      if (!silent) toast.success("Notifications enabled.");
     } catch (e: any) {
-      toast.error(e.message ?? "Could not enable notifications.");
+      if (!silent) toast.error(e.message ?? "Could not enable notifications.");
     } finally {
       setBusy(false);
     }
@@ -111,7 +131,7 @@ export function PushSubscribeButton() {
       variant="outline"
       size="sm"
       disabled={busy}
-      onClick={enable}
+      onClick={() => enable()}
       className="border-spice/40 text-spice hover:bg-spice/10"
     >
       <Bell className="size-4 mr-1" /> Enable notifications
