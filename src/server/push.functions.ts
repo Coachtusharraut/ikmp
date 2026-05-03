@@ -14,7 +14,7 @@ async function assertAdmin(userId: string) {
   if (!data) throw new Error("Forbidden: admin only");
 }
 
-export const getVapidPublicKey = createServerFn({ method: "GET" }).handler(async () => {
+export const getVapidPublicKey = createServerFn({ method: "POST" }).handler(async () => {
   return { publicKey: process.env.VAPID_PUBLIC_KEY ?? "" };
 });
 
