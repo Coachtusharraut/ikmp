@@ -11,15 +11,19 @@ import {
 import { useAuth } from "@/lib/auth";
 
 function urlBase64ToUint8Array(base64String: string) {
-  // Sanitize: trim whitespace/newlines and strip any non-base64 chars
-  const cleaned = (base64String || "")
-    .trim()
-    .replace(/\s+/g, "")
-    .replace(/=+$/, "");
+  // Sanitize: trim, strip surrounding quotes, remove any chars not in base64url alphabet
+  let cleaned = (base64String || "").trim();
+  if (
+    (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
+    (cleaned.startsWith("'") && cleaned.endsWith("'"))
+  ) {
+    cleaned = cleaned.slice(1, -1);
+  }
+  cleaned = cleaned.replace(/[^A-Za-z0-9_\-+/=]/g, "").replace(/=+$/, "");
   if (!cleaned) throw new Error("Empty VAPID public key");
   const padding = "=".repeat((4 - (cleaned.length % 4)) % 4);
   const base64 = (cleaned + padding).replace(/-/g, "+").replace(/_/g, "/");
-  if (!/^[A-Za-z0-9+/=]+$/.test(base64)) {
+  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) {
     throw new Error("Invalid VAPID public key format");
   }
   const raw = atob(base64);
