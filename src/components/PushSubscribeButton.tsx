@@ -94,9 +94,9 @@ export function PushSubscribeButton() {
         },
       });
       setSubscribed(true);
-      toast.success("Notifications enabled.");
+      if (!silent) toast.success("Notifications enabled.");
     } catch (e: any) {
-      toast.error(e.message ?? "Could not enable notifications.");
+      if (!silent) toast.error(e.message ?? "Could not enable notifications.");
     } finally {
       setBusy(false);
     }
