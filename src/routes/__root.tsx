@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth";
 import { SiteSettingsProvider } from "@/lib/site-settings";
 import { AppHeader } from "@/components/AppHeader";
+import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 
 import appCss from "../styles.css?url";
 
@@ -129,6 +130,7 @@ function RootComponent() {
         <SiteSettingsProvider>
           <div className="min-h-screen flex flex-col">
             <AppHeader />
+            <AnnouncementBanner />
             <main className="flex-1">
               <Outlet />
             </main>
