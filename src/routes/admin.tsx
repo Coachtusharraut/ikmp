@@ -177,6 +177,13 @@ function AdminPage() {
 
   return (
     <div className="container mx-auto px-4 py-10 space-y-12">
+      {/* Quick links */}
+      <div className="flex flex-wrap gap-2">
+        <Button asChild className="bg-spice text-spice-foreground hover:bg-spice/90">
+          <Link to="/admin/tools">Users, Newsletter & Push →</Link>
+        </Button>
+      </div>
+
       {/* Site settings */}
       <div>
         <div className="flex items-end justify-between gap-4 mb-6 flex-wrap">
