@@ -131,7 +131,7 @@ export function PushSubscribeButton() {
       variant="outline"
       size="sm"
       disabled={busy}
-      onClick={enable}
+      onClick={() => enable()}
       className="border-spice/40 text-spice hover:bg-spice/10"
     >
       <Bell className="size-4 mr-1" /> Enable notifications
