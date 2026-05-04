@@ -1,30 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireAdminFromAccessToken } from "@/server/admin-auth.server";
 
 const MAIN_ADMIN_EMAIL = "tusharraut2001@gmail.com";
 
-async function assertAdmin(userId: string) {
-  const { data, error } = await supabaseAdmin
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (error) throw new Error(error.message);
-  if (!data) throw new Error("Forbidden: admin only");
-}
-
 // ========== LIST USERS WITH ROLES + STATS ==========
 export const listAllUsers = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    try {
-      await assertAdmin(context.userId);
-    } catch (e: any) {
-      throw new Error(`assertAdmin: ${e.message}`);
-    }
+  .inputValidator((d) => z.object({ accessToken: z.string().min(1) }).parse(d))
+  .handler(async ({ data }) => {
+    await requireAdminFromAccessToken(data.accessToken);
 
     // Page through auth.users
     const all: { id: string; email: string | null; created_at: string; last_sign_in_at: string | null }[] = [];
@@ -85,10 +70,9 @@ export const listAllUsers = createServerFn({ method: "POST" })
 
 // ========== USER DETAIL ==========
 export const getUserDetail = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
+  .inputValidator((d) => z.object({ userId: z.string().uuid(), accessToken: z.string().min(1) }).parse(d))
+  .handler(async ({ data }) => {
+    await requireAdminFromAccessToken(data.accessToken);
     const { data: u, error } = await supabaseAdmin.auth.admin.getUserById(data.userId);
     if (error) throw new Error(error.message);
     const [{ data: enrols }, { data: progress }, { data: roles }] = await Promise.all([
@@ -114,22 +98,21 @@ export const getUserDetail = createServerFn({ method: "POST" })
 
 // ========== TOGGLE ROLE ==========
 export const toggleUserRole = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z
       .object({
         targetUserId: z.string().uuid(),
         role: z.enum(["admin", "coach", "user"]),
         action: z.enum(["add", "remove"]),
+        accessToken: z.string().min(1),
       })
       .parse(d),
   )
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
+  .handler(async ({ data }) => {
+    const caller = await requireAdminFromAccessToken(data.accessToken);
 
     // Caller's email
-    const { data: meRes } = await supabaseAdmin.auth.admin.getUserById(context.userId);
-    const callerEmail = meRes.user?.email ?? "";
+    const callerEmail = caller.email ?? "";
 
     // Target's email
     const { data: targetRes } = await supabaseAdmin.auth.admin.getUserById(data.targetUserId);
@@ -147,7 +130,7 @@ export const toggleUserRole = createServerFn({ method: "POST" })
     if (
       data.action === "remove" &&
       data.role === "admin" &&
-      data.targetUserId === context.userId &&
+      data.targetUserId === caller.id &&
       callerEmail === MAIN_ADMIN_EMAIL
     ) {
       throw new Error("You cannot demote yourself.");
@@ -175,17 +158,16 @@ export const toggleUserRole = createServerFn({ method: "POST" })
 
 // ========== DELETE USER ==========
 export const deleteUser = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ targetUserId: z.string().uuid() }).parse(d))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
+  .inputValidator((d) => z.object({ targetUserId: z.string().uuid(), accessToken: z.string().min(1) }).parse(d))
+  .handler(async ({ data }) => {
+    const caller = await requireAdminFromAccessToken(data.accessToken);
 
     const { data: targetRes } = await supabaseAdmin.auth.admin.getUserById(data.targetUserId);
     const targetEmail = targetRes.user?.email ?? "";
     if (targetEmail === MAIN_ADMIN_EMAIL) {
       throw new Error("The main admin account cannot be deleted.");
     }
-    if (data.targetUserId === context.userId) {
+    if (data.targetUserId === caller.id) {
       throw new Error("You cannot delete your own account here.");
     }
 

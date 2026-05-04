@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +22,13 @@ import { sendPushToAll } from "@/server/push.functions";
 export const Route = createFileRoute("/admin-tools")({
   component: AdminTools,
 });
+
+async function getCurrentAccessToken(errorMessage: string) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const accessToken = sessionData.session?.access_token;
+  if (!accessToken) throw new Error(errorMessage);
+  return accessToken;
+}
 
 function AdminTools() {
   const { user, isAdmin, loading } = useAuth();
@@ -89,9 +97,12 @@ function UsersPanel() {
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
 
-  const { data, refetch, isLoading } = useQuery({
+  const { data, refetch, isLoading, error } = useQuery({
     queryKey: ["admin_all_users"],
-    queryFn: () => list(),
+    queryFn: async () => {
+      const accessToken = await getCurrentAccessToken("Please sign in again to load users.");
+      return list({ data: { accessToken } });
+    },
   });
 
   const users = (data?.users ?? []).filter((u: any) =>
@@ -101,7 +112,8 @@ function UsersPanel() {
   async function handleToggle(uid: string, role: "admin" | "coach", has: boolean) {
     setBusy(uid + role);
     try {
-      await toggle({ data: { targetUserId: uid, role, action: has ? "remove" : "add" } });
+      const accessToken = await getCurrentAccessToken("Please sign in again to update roles.");
+      await toggle({ data: { targetUserId: uid, role, action: has ? "remove" : "add", accessToken } });
       toast.success("Role updated");
       refetch();
     } catch (e: any) {
@@ -115,7 +127,8 @@ function UsersPanel() {
     if (!confirm(`Delete ${email}? This permanently removes the user and their data.`)) return;
     setBusy(uid + "del");
     try {
-      await del({ data: { targetUserId: uid } });
+      const accessToken = await getCurrentAccessToken("Please sign in again to delete users.");
+      await del({ data: { targetUserId: uid, accessToken } });
       toast.success("User deleted");
       refetch();
     } catch (e: any) {
@@ -141,6 +154,10 @@ function UsersPanel() {
       <CardContent>
         {isLoading ? (
           <div className="text-sm text-muted-foreground">Loading…</div>
+        ) : error ? (
+          <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+            {(error as Error).message || "Could not load users."}
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -254,12 +271,16 @@ function NewsletterPanel() {
     if (!confirm("Send to all users?")) return;
     setBusy(true);
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) throw new Error("Please sign in again to send newsletters.");
       const res = await send({
         data: {
           subject,
           bodyHtml: body,
           alsoEmail,
           alsoAnnouncement: alsoBanner,
+          accessToken,
         },
       });
       toast.success(
