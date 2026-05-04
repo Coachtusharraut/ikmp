@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -91,7 +92,12 @@ function UsersPanel() {
 
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin_all_users"],
-    queryFn: () => list(),
+    queryFn: async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) throw new Error("Please sign in again to load users.");
+      return list({ data: { accessToken } });
+    },
   });
 
   const users = (data?.users ?? []).filter((u: any) =>
