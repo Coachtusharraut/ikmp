@@ -20,18 +20,22 @@ async function assertAdmin(userId: string) {
 export const listAllUsers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context.userId);
+    try {
+      await assertAdmin(context.userId);
+    } catch (e: any) {
+      throw new Error(`assertAdmin: ${e.message}`);
+    }
 
     // Page through auth.users
     const all: { id: string; email: string | null; created_at: string; last_sign_in_at: string | null }[] = [];
     let page = 1;
     while (true) {
       const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
-      if (error) throw new Error(error.message);
+      if (error) throw new Error(`listUsers: ${error.message}`);
       data.users.forEach((u) =>
         all.push({
           id: u.id,
-          email: u.email ?? null,
+          email: u.email ?? (u as any).user_metadata?.email ?? null,
           created_at: u.created_at,
           last_sign_in_at: u.last_sign_in_at ?? null,
         }),
@@ -44,11 +48,17 @@ export const listAllUsers = createServerFn({ method: "POST" })
     const ids = all.map((u) => u.id);
     if (ids.length === 0) return { users: [] };
 
-    const [{ data: roles }, { data: enrols }, { data: progress }] = await Promise.all([
+    const [rolesRes, enrolsRes, progressRes] = await Promise.all([
       supabaseAdmin.from("user_roles").select("user_id, role").in("user_id", ids),
       supabaseAdmin.from("course_enrollments").select("user_id").in("user_id", ids),
       supabaseAdmin.from("lesson_progress").select("user_id").in("user_id", ids),
     ]);
+    if (rolesRes.error) console.error("user_roles error:", rolesRes.error.message);
+    if (enrolsRes.error) console.error("enrollments error:", enrolsRes.error.message);
+    if (progressRes.error) console.error("progress error:", progressRes.error.message);
+    const roles = rolesRes.data ?? [];
+    const enrols = enrolsRes.data ?? [];
+    const progress = progressRes.data ?? [];
 
     const rolesByUser = new Map<string, string[]>();
     (roles ?? []).forEach((r) => {
