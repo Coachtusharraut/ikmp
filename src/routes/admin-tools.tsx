@@ -97,7 +97,7 @@ function UsersPanel() {
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
 
-  const { data, refetch, isLoading } = useQuery({
+  const { data, refetch, isLoading, error } = useQuery({
     queryKey: ["admin_all_users"],
     queryFn: async () => {
       const accessToken = await getCurrentAccessToken("Please sign in again to load users.");
@@ -154,6 +154,10 @@ function UsersPanel() {
       <CardContent>
         {isLoading ? (
           <div className="text-sm text-muted-foreground">Loading…</div>
+        ) : error ? (
+          <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+            {(error as Error).message || "Could not load users."}
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
