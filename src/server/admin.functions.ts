@@ -1,21 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireAdminFromAccessToken } from "@/server/admin-auth.server";
 
 const MAIN_ADMIN_EMAIL = "tusharraut2001@gmail.com";
-
-async function assertAdmin(userId: string) {
-  const { data, error } = await supabaseAdmin
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (error) throw new Error(error.message);
-  if (!data) throw new Error("Forbidden: admin only");
-}
 
 // ========== LIST USERS WITH ROLES + STATS ==========
 export const listAllUsers = createServerFn({ method: "POST" })
@@ -82,10 +70,9 @@ export const listAllUsers = createServerFn({ method: "POST" })
 
 // ========== USER DETAIL ==========
 export const getUserDetail = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
+  .inputValidator((d) => z.object({ userId: z.string().uuid(), accessToken: z.string().min(1) }).parse(d))
+  .handler(async ({ data }) => {
+    await requireAdminFromAccessToken(data.accessToken);
     const { data: u, error } = await supabaseAdmin.auth.admin.getUserById(data.userId);
     if (error) throw new Error(error.message);
     const [{ data: enrols }, { data: progress }, { data: roles }] = await Promise.all([
