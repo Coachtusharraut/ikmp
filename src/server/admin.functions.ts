@@ -98,22 +98,21 @@ export const getUserDetail = createServerFn({ method: "POST" })
 
 // ========== TOGGLE ROLE ==========
 export const toggleUserRole = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z
       .object({
         targetUserId: z.string().uuid(),
         role: z.enum(["admin", "coach", "user"]),
         action: z.enum(["add", "remove"]),
+        accessToken: z.string().min(1),
       })
       .parse(d),
   )
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
+  .handler(async ({ data }) => {
+    const caller = await requireAdminFromAccessToken(data.accessToken);
 
     // Caller's email
-    const { data: meRes } = await supabaseAdmin.auth.admin.getUserById(context.userId);
-    const callerEmail = meRes.user?.email ?? "";
+    const callerEmail = caller.email ?? "";
 
     // Target's email
     const { data: targetRes } = await supabaseAdmin.auth.admin.getUserById(data.targetUserId);
@@ -131,7 +130,7 @@ export const toggleUserRole = createServerFn({ method: "POST" })
     if (
       data.action === "remove" &&
       data.role === "admin" &&
-      data.targetUserId === context.userId &&
+      data.targetUserId === caller.id &&
       callerEmail === MAIN_ADMIN_EMAIL
     ) {
       throw new Error("You cannot demote yourself.");
@@ -159,17 +158,16 @@ export const toggleUserRole = createServerFn({ method: "POST" })
 
 // ========== DELETE USER ==========
 export const deleteUser = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ targetUserId: z.string().uuid() }).parse(d))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
+  .inputValidator((d) => z.object({ targetUserId: z.string().uuid(), accessToken: z.string().min(1) }).parse(d))
+  .handler(async ({ data }) => {
+    const caller = await requireAdminFromAccessToken(data.accessToken);
 
     const { data: targetRes } = await supabaseAdmin.auth.admin.getUserById(data.targetUserId);
     const targetEmail = targetRes.user?.email ?? "";
     if (targetEmail === MAIN_ADMIN_EMAIL) {
       throw new Error("The main admin account cannot be deleted.");
     }
-    if (data.targetUserId === context.userId) {
+    if (data.targetUserId === caller.id) {
       throw new Error("You cannot delete your own account here.");
     }
 
