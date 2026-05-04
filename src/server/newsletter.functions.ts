@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireAdminFromAccessToken } from "@/server/admin-auth.server";
 
 async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
@@ -29,11 +30,12 @@ export const sendNewsletter = createServerFn({ method: "POST" })
         bodyHtml: z.string().min(1),
         alsoEmail: z.boolean().default(true),
         alsoAnnouncement: z.boolean().default(true),
+        accessToken: z.string().min(1),
       })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
+    const adminUser = await requireAdminFromAccessToken(data.accessToken);
 
     let recipientCount = 0;
     let emailAttempted = false;
@@ -46,7 +48,7 @@ export const sendNewsletter = createServerFn({ method: "POST" })
         title: data.subject,
         body_html: data.bodyHtml,
         published: true,
-        created_by: context.userId,
+        created_by: adminUser.id,
       });
       if (error) throw new Error(error.message);
     }
@@ -105,7 +107,7 @@ export const sendNewsletter = createServerFn({ method: "POST" })
       body_html: data.bodyHtml,
       recipient_count: emailSent,
       also_announcement: data.alsoAnnouncement,
-      sent_by: context.userId,
+      sent_by: adminUser.id,
     });
 
     return {
