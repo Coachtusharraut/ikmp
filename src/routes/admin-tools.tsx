@@ -23,6 +23,13 @@ export const Route = createFileRoute("/admin-tools")({
   component: AdminTools,
 });
 
+async function getCurrentAccessToken(errorMessage: string) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const accessToken = sessionData.session?.access_token;
+  if (!accessToken) throw new Error(errorMessage);
+  return accessToken;
+}
+
 function AdminTools() {
   const { user, isAdmin, loading } = useAuth();
   const [tab, setTab] = useState<"users" | "newsletter" | "push">("users");
@@ -93,9 +100,7 @@ function UsersPanel() {
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin_all_users"],
     queryFn: async () => {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData.session?.access_token;
-      if (!accessToken) throw new Error("Please sign in again to load users.");
+      const accessToken = await getCurrentAccessToken("Please sign in again to load users.");
       return list({ data: { accessToken } });
     },
   });
@@ -107,7 +112,8 @@ function UsersPanel() {
   async function handleToggle(uid: string, role: "admin" | "coach", has: boolean) {
     setBusy(uid + role);
     try {
-      await toggle({ data: { targetUserId: uid, role, action: has ? "remove" : "add" } });
+      const accessToken = await getCurrentAccessToken("Please sign in again to update roles.");
+      await toggle({ data: { targetUserId: uid, role, action: has ? "remove" : "add", accessToken } });
       toast.success("Role updated");
       refetch();
     } catch (e: any) {
@@ -121,7 +127,8 @@ function UsersPanel() {
     if (!confirm(`Delete ${email}? This permanently removes the user and their data.`)) return;
     setBusy(uid + "del");
     try {
-      await del({ data: { targetUserId: uid } });
+      const accessToken = await getCurrentAccessToken("Please sign in again to delete users.");
+      await del({ data: { targetUserId: uid, accessToken } });
       toast.success("User deleted");
       refetch();
     } catch (e: any) {
