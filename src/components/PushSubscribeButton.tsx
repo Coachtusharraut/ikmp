@@ -73,9 +73,17 @@ export function PushSubscribeButton() {
     }
     setBusy(true);
     try {
+      if (Notification.permission === "denied") {
+        if (!silent) {
+          toast.error(
+            "Notifications are blocked for this site. Click the lock icon in your browser's address bar and set Notifications to Allow, then reload."
+          );
+        }
+        return;
+      }
       const perm = await Notification.requestPermission();
       if (perm !== "granted") {
-        toast.error("Notification permission denied.");
+        if (!silent) toast.error("Notification permission denied.");
         return;
       }
       const reg = await navigator.serviceWorker.ready;
