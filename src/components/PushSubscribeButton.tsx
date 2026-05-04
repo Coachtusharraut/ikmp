@@ -19,13 +19,12 @@ function urlBase64ToUint8Array(base64String: string) {
   ) {
     cleaned = cleaned.slice(1, -1);
   }
-  cleaned = cleaned.replace(/[^A-Za-z0-9_\-+/=]/g, "").replace(/=+$/, "");
+  // First convert base64url -> base64, then strip anything not in base64 alphabet
+  cleaned = cleaned.replace(/-/g, "+").replace(/_/g, "/");
+  cleaned = cleaned.replace(/[^A-Za-z0-9+/]/g, "");
   if (!cleaned) throw new Error("Empty VAPID public key");
   const padding = "=".repeat((4 - (cleaned.length % 4)) % 4);
-  const base64 = (cleaned + padding).replace(/-/g, "+").replace(/_/g, "/");
-  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) {
-    throw new Error("Invalid VAPID public key format");
-  }
+  const base64 = cleaned + padding;
   const raw = atob(base64);
   const arr = new Uint8Array(raw.length);
   for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
