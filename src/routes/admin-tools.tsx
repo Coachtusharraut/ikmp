@@ -260,12 +260,16 @@ function NewsletterPanel() {
     if (!confirm("Send to all users?")) return;
     setBusy(true);
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) throw new Error("Please sign in again to send newsletters.");
       const res = await send({
         data: {
           subject,
           bodyHtml: body,
           alsoEmail,
           alsoAnnouncement: alsoBanner,
+          accessToken,
         },
       });
       toast.success(
