@@ -21,7 +21,7 @@ export const sendNewsletter = createServerFn({ method: "POST" })
       })
       .parse(d),
   )
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
     const adminUser = await requireAdminFromAccessToken(data.accessToken);
 
     let recipientCount = 0;
