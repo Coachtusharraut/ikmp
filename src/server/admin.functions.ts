@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireAdminFromAccessToken } from "@/server/admin-auth.server";
 
 const MAIN_ADMIN_EMAIL = "tusharraut2001@gmail.com";
 
@@ -18,13 +19,9 @@ async function assertAdmin(userId: string) {
 
 // ========== LIST USERS WITH ROLES + STATS ==========
 export const listAllUsers = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    try {
-      await assertAdmin(context.userId);
-    } catch (e: any) {
-      throw new Error(`assertAdmin: ${e.message}`);
-    }
+  .inputValidator((d) => z.object({ accessToken: z.string().min(1) }).parse(d))
+  .handler(async ({ data }) => {
+    await requireAdminFromAccessToken(data.accessToken);
 
     // Page through auth.users
     const all: { id: string; email: string | null; created_at: string; last_sign_in_at: string | null }[] = [];
