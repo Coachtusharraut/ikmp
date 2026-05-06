@@ -182,6 +182,9 @@ function AdminPage() {
         <Button asChild className="bg-spice text-spice-foreground hover:bg-spice/90">
           <Link to="/admin-tools">Users, Newsletter & Push →</Link>
         </Button>
+        <Button asChild variant="outline">
+          <Link to="/admin-workouts">Manage workouts →</Link>
+        </Button>
       </div>
 
       {/* Site settings */}

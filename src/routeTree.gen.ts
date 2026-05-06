@@ -17,6 +17,7 @@ import { Route as GroceryRouteImport } from './routes/grocery'
 import { Route as DeleteAccountRouteImport } from './routes/delete-account'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CoachRouteImport } from './routes/coach'
+import { Route as AdminWorkoutsRouteImport } from './routes/admin-workouts'
 import { Route as AdminToolsRouteImport } from './routes/admin-tools'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -65,6 +66,11 @@ const CoachRoute = CoachRouteImport.update({
   path: '/coach',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminWorkoutsRoute = AdminWorkoutsRouteImport.update({
+  id: '/admin-workouts',
+  path: '/admin-workouts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminToolsRoute = AdminToolsRouteImport.update({
   id: '/admin-tools',
   path: '/admin-tools',
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/admin-tools': typeof AdminToolsRoute
+  '/admin-workouts': typeof AdminWorkoutsRoute
   '/coach': typeof CoachRoute
   '/courses': typeof CoursesRouteWithChildren
   '/delete-account': typeof DeleteAccountRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/admin-tools': typeof AdminToolsRoute
+  '/admin-workouts': typeof AdminWorkoutsRoute
   '/coach': typeof CoachRoute
   '/delete-account': typeof DeleteAccountRoute
   '/grocery': typeof GroceryRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/admin-tools': typeof AdminToolsRoute
+  '/admin-workouts': typeof AdminWorkoutsRoute
   '/coach': typeof CoachRoute
   '/courses': typeof CoursesRouteWithChildren
   '/delete-account': typeof DeleteAccountRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/admin-tools'
+    | '/admin-workouts'
     | '/coach'
     | '/courses'
     | '/delete-account'
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/admin-tools'
+    | '/admin-workouts'
     | '/coach'
     | '/delete-account'
     | '/grocery'
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/admin-tools'
+    | '/admin-workouts'
     | '/coach'
     | '/courses'
     | '/delete-account'
@@ -209,6 +221,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AdminToolsRoute: typeof AdminToolsRoute
+  AdminWorkoutsRoute: typeof AdminWorkoutsRoute
   CoachRoute: typeof CoachRoute
   CoursesRoute: typeof CoursesRouteWithChildren
   DeleteAccountRoute: typeof DeleteAccountRoute
@@ -277,6 +290,13 @@ declare module '@tanstack/react-router' {
       path: '/coach'
       fullPath: '/coach'
       preLoaderRoute: typeof CoachRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-workouts': {
+      id: '/admin-workouts'
+      path: '/admin-workouts'
+      fullPath: '/admin-workouts'
+      preLoaderRoute: typeof AdminWorkoutsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin-tools': {
@@ -348,6 +368,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AdminToolsRoute: AdminToolsRoute,
+  AdminWorkoutsRoute: AdminWorkoutsRoute,
   CoachRoute: CoachRoute,
   CoursesRoute: CoursesRouteWithChildren,
   DeleteAccountRoute: DeleteAccountRoute,
