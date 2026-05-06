@@ -21,6 +21,7 @@ import { Route as AdminToolsRouteImport } from './routes/admin-tools'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
+import { Route as WorkoutIdRouteImport } from './routes/workout.$id'
 import { Route as RecipeIdRouteImport } from './routes/recipe.$id'
 import { Route as CoursesIdRouteImport } from './routes/courses.$id'
 
@@ -84,6 +85,11 @@ const CoursesIndexRoute = CoursesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => CoursesRoute,
 } as any)
+const WorkoutIdRoute = WorkoutIdRouteImport.update({
+  id: '/workout/$id',
+  path: '/workout/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecipeIdRoute = RecipeIdRouteImport.update({
   id: '/recipe/$id',
   path: '/recipe/$id',
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/workouts': typeof WorkoutsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
+  '/workout/$id': typeof WorkoutIdRoute
   '/courses/': typeof CoursesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/workouts': typeof WorkoutsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
+  '/workout/$id': typeof WorkoutIdRoute
   '/courses': typeof CoursesIndexRoute
 }
 export interface FileRoutesById {
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/workouts': typeof WorkoutsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
+  '/workout/$id': typeof WorkoutIdRoute
   '/courses/': typeof CoursesIndexRoute
 }
 export interface FileRouteTypes {
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
     | '/workouts'
     | '/courses/$id'
     | '/recipe/$id'
+    | '/workout/$id'
     | '/courses/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
     | '/workouts'
     | '/courses/$id'
     | '/recipe/$id'
+    | '/workout/$id'
     | '/courses'
   id:
     | '__root__'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '/workouts'
     | '/courses/$id'
     | '/recipe/$id'
+    | '/workout/$id'
     | '/courses/'
   fileRoutesById: FileRoutesById
 }
@@ -206,6 +218,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   WorkoutsRoute: typeof WorkoutsRoute
   RecipeIdRoute: typeof RecipeIdRoute
+  WorkoutIdRoute: typeof WorkoutIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -294,6 +307,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesIndexRouteImport
       parentRoute: typeof CoursesRoute
     }
+    '/workout/$id': {
+      id: '/workout/$id'
+      path: '/workout/$id'
+      fullPath: '/workout/$id'
+      preLoaderRoute: typeof WorkoutIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/recipe/$id': {
       id: '/recipe/$id'
       path: '/recipe/$id'
@@ -337,6 +357,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   WorkoutsRoute: WorkoutsRoute,
   RecipeIdRoute: RecipeIdRoute,
+  WorkoutIdRoute: WorkoutIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
