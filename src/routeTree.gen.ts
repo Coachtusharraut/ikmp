@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WorkoutsRouteImport } from './routes/workouts'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlannerRouteImport } from './routes/planner'
 import { Route as LoginRouteImport } from './routes/login'
@@ -23,6 +24,11 @@ import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as RecipeIdRouteImport } from './routes/recipe.$id'
 import { Route as CoursesIdRouteImport } from './routes/courses.$id'
 
+const WorkoutsRoute = WorkoutsRouteImport.update({
+  id: '/workouts',
+  path: '/workouts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
   '/privacy': typeof PrivacyRoute
+  '/workouts': typeof WorkoutsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
   '/courses/': typeof CoursesIndexRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
   '/privacy': typeof PrivacyRoute
+  '/workouts': typeof WorkoutsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
   '/courses': typeof CoursesIndexRoute
@@ -130,6 +138,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/planner': typeof PlannerRoute
   '/privacy': typeof PrivacyRoute
+  '/workouts': typeof WorkoutsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
   '/courses/': typeof CoursesIndexRoute
@@ -147,6 +156,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/planner'
     | '/privacy'
+    | '/workouts'
     | '/courses/$id'
     | '/recipe/$id'
     | '/courses/'
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/planner'
     | '/privacy'
+    | '/workouts'
     | '/courses/$id'
     | '/recipe/$id'
     | '/courses'
@@ -176,6 +187,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/planner'
     | '/privacy'
+    | '/workouts'
     | '/courses/$id'
     | '/recipe/$id'
     | '/courses/'
@@ -192,11 +204,19 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   PlannerRoute: typeof PlannerRoute
   PrivacyRoute: typeof PrivacyRoute
+  WorkoutsRoute: typeof WorkoutsRoute
   RecipeIdRoute: typeof RecipeIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/workouts': {
+      id: '/workouts'
+      path: '/workouts'
+      fullPath: '/workouts'
+      preLoaderRoute: typeof WorkoutsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -315,8 +335,18 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   PlannerRoute: PlannerRoute,
   PrivacyRoute: PrivacyRoute,
+  WorkoutsRoute: WorkoutsRoute,
   RecipeIdRoute: RecipeIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
