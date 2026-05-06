@@ -706,6 +706,126 @@ export type Database = {
         }
         Relationships: []
       }
+      workout_section_links: {
+        Row: {
+          created_at: string
+          id: string
+          section_id: string
+          workout_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          section_id: string
+          workout_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          section_id?: string
+          workout_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_section_links_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workout_section_links_workout_id_fkey"
+            columns: ["workout_id"]
+            isOneToOne: false
+            referencedRelation: "workouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workout_sections: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      workouts: {
+        Row: {
+          calories: number | null
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          duration_min: number
+          equipment: string | null
+          id: string
+          image_url: string | null
+          instructions: string | null
+          is_published: boolean
+          level: string
+          name: string
+          updated_at: string
+          video_type: string | null
+          video_url: string | null
+        }
+        Insert: {
+          calories?: number | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_min?: number
+          equipment?: string | null
+          id?: string
+          image_url?: string | null
+          instructions?: string | null
+          is_published?: boolean
+          level?: string
+          name: string
+          updated_at?: string
+          video_type?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          calories?: number | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_min?: number
+          equipment?: string | null
+          id?: string
+          image_url?: string | null
+          instructions?: string | null
+          is_published?: boolean
+          level?: string
+          name?: string
+          updated_at?: string
+          video_type?: string | null
+          video_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

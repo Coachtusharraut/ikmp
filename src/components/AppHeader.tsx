@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth";
 import { useSiteSettings } from "@/lib/site-settings";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { ChefHat, LogOut, ShieldCheck, Menu, GraduationCap, Sparkles } from "lucide-react";
+import { ChefHat, LogOut, ShieldCheck, Menu, GraduationCap, Sparkles, Dumbbell } from "lucide-react";
 import { PushSubscribeButton } from "@/components/PushSubscribeButton";
 
 export function AppHeader() {
@@ -43,6 +43,15 @@ export function AppHeader() {
                     activeOptions={{ exact: true }}
                   >
                     Recipes
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link
+                    to="/workouts"
+                    className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent"
+                    activeProps={{ className: "px-3 py-2 rounded-md text-sm bg-spice text-spice-foreground font-semibold shadow-sm" }}
+                  >
+                    Workouts
                   </Link>
                 </SheetClose>
                 <SheetClose asChild>
@@ -147,6 +156,13 @@ export function AppHeader() {
             activeOptions={{ exact: true }}
           >
             Recipes
+          </Link>
+          <Link
+            to="/workouts"
+            className="px-3 py-1.5 rounded-full text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition flex items-center gap-1"
+            activeProps={{ className: "px-3 py-1.5 rounded-full text-sm bg-spice text-spice-foreground font-semibold shadow-sm flex items-center gap-1" }}
+          >
+            <Dumbbell className="size-4" /> Workouts
           </Link>
           <Link
             to="/courses"
