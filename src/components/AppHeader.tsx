@@ -67,6 +67,15 @@ export function AppHeader() {
                   <>
                     <SheetClose asChild>
                       <Link
+                        to="/my-plan"
+                        className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent"
+                        activeProps={{ className: "px-3 py-2 rounded-md text-sm bg-spice text-spice-foreground font-semibold shadow-sm" }}
+                      >
+                        My Plan
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link
                         to="/planner"
                         className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent"
                         activeProps={{ className: "px-3 py-2 rounded-md text-sm bg-spice text-spice-foreground font-semibold shadow-sm" }}
@@ -173,6 +182,13 @@ export function AppHeader() {
           </Link>
           {user && (
             <>
+              <Link
+                to="/my-plan"
+                className="px-3 py-1.5 rounded-full text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition"
+                activeProps={{ className: "px-3 py-1.5 rounded-full text-sm bg-spice text-spice-foreground font-semibold shadow-sm" }}
+              >
+                My Plan
+              </Link>
               <Link
                 to="/planner"
                 className="px-3 py-1.5 rounded-full text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition"

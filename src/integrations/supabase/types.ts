@@ -421,6 +421,33 @@ export type Database = {
         }
         Relationships: []
       }
+      plan_item_completions: {
+        Row: {
+          completed_at: string
+          id: string
+          item_id: string
+          item_type: string
+          note: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          item_id: string
+          item_type: string
+          note?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          item_id?: string
+          item_type?: string
+          note?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       push_notifications_log: {
         Row: {
           body: string
@@ -682,6 +709,163 @@ export type Database = {
           spice_color?: string
           tagline?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_checkins: {
+        Row: {
+          body_fat_pct: number | null
+          chest_cm: number | null
+          created_at: string
+          hips_cm: number | null
+          id: string
+          measured_at: string
+          note: string | null
+          user_id: string
+          waist_cm: number | null
+          weight_kg: number | null
+        }
+        Insert: {
+          body_fat_pct?: number | null
+          chest_cm?: number | null
+          created_at?: string
+          hips_cm?: number | null
+          id?: string
+          measured_at?: string
+          note?: string | null
+          user_id: string
+          waist_cm?: number | null
+          weight_kg?: number | null
+        }
+        Update: {
+          body_fat_pct?: number | null
+          chest_cm?: number | null
+          created_at?: string
+          hips_cm?: number | null
+          id?: string
+          measured_at?: string
+          note?: string | null
+          user_id?: string
+          waist_cm?: number | null
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
+      user_plan_items: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          item_type: string
+          notes: string | null
+          plan_id: string
+          servings: number | null
+          sort_order: number
+          times_per_week: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          item_type: string
+          notes?: string | null
+          plan_id: string
+          servings?: number | null
+          sort_order?: number
+          times_per_week?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          item_type?: string
+          notes?: string | null
+          plan_id?: string
+          servings?: number | null
+          sort_order?: number
+          times_per_week?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_plan_items_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "user_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_plan_user_items: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          item_type: string
+          notes: string | null
+          plan_id: string
+          servings: number | null
+          sort_order: number
+          times_per_week: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          item_type: string
+          notes?: string | null
+          plan_id: string
+          servings?: number | null
+          sort_order?: number
+          times_per_week?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          item_type?: string
+          notes?: string | null
+          plan_id?: string
+          servings?: number | null
+          sort_order?: number
+          times_per_week?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_plan_user_items_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "user_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_plans: {
+        Row: {
+          assigned_by: string | null
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_by?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

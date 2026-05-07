@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkoutsRouteImport } from './routes/workouts'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlannerRouteImport } from './routes/planner'
+import { Route as MyPlanRouteImport } from './routes/my-plan'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as GroceryRouteImport } from './routes/grocery'
 import { Route as DeleteAccountRouteImport } from './routes/delete-account'
@@ -19,6 +20,7 @@ import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CoachRouteImport } from './routes/coach'
 import { Route as AdminWorkoutsRouteImport } from './routes/admin-workouts'
 import { Route as AdminToolsRouteImport } from './routes/admin-tools'
+import { Route as AdminPlansRouteImport } from './routes/admin-plans'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
@@ -39,6 +41,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const PlannerRoute = PlannerRouteImport.update({
   id: '/planner',
   path: '/planner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyPlanRoute = MyPlanRouteImport.update({
+  id: '/my-plan',
+  path: '/my-plan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -76,6 +83,11 @@ const AdminToolsRoute = AdminToolsRouteImport.update({
   path: '/admin-tools',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPlansRoute = AdminPlansRouteImport.update({
+  id: '/admin-plans',
+  path: '/admin-plans',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -110,6 +122,7 @@ const CoursesIdRoute = CoursesIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/admin-plans': typeof AdminPlansRoute
   '/admin-tools': typeof AdminToolsRoute
   '/admin-workouts': typeof AdminWorkoutsRoute
   '/coach': typeof CoachRoute
@@ -117,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/delete-account': typeof DeleteAccountRoute
   '/grocery': typeof GroceryRoute
   '/login': typeof LoginRoute
+  '/my-plan': typeof MyPlanRoute
   '/planner': typeof PlannerRoute
   '/privacy': typeof PrivacyRoute
   '/workouts': typeof WorkoutsRoute
@@ -128,12 +142,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/admin-plans': typeof AdminPlansRoute
   '/admin-tools': typeof AdminToolsRoute
   '/admin-workouts': typeof AdminWorkoutsRoute
   '/coach': typeof CoachRoute
   '/delete-account': typeof DeleteAccountRoute
   '/grocery': typeof GroceryRoute
   '/login': typeof LoginRoute
+  '/my-plan': typeof MyPlanRoute
   '/planner': typeof PlannerRoute
   '/privacy': typeof PrivacyRoute
   '/workouts': typeof WorkoutsRoute
@@ -146,6 +162,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/admin-plans': typeof AdminPlansRoute
   '/admin-tools': typeof AdminToolsRoute
   '/admin-workouts': typeof AdminWorkoutsRoute
   '/coach': typeof CoachRoute
@@ -153,6 +170,7 @@ export interface FileRoutesById {
   '/delete-account': typeof DeleteAccountRoute
   '/grocery': typeof GroceryRoute
   '/login': typeof LoginRoute
+  '/my-plan': typeof MyPlanRoute
   '/planner': typeof PlannerRoute
   '/privacy': typeof PrivacyRoute
   '/workouts': typeof WorkoutsRoute
@@ -166,6 +184,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/admin-plans'
     | '/admin-tools'
     | '/admin-workouts'
     | '/coach'
@@ -173,6 +192,7 @@ export interface FileRouteTypes {
     | '/delete-account'
     | '/grocery'
     | '/login'
+    | '/my-plan'
     | '/planner'
     | '/privacy'
     | '/workouts'
@@ -184,12 +204,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/admin-plans'
     | '/admin-tools'
     | '/admin-workouts'
     | '/coach'
     | '/delete-account'
     | '/grocery'
     | '/login'
+    | '/my-plan'
     | '/planner'
     | '/privacy'
     | '/workouts'
@@ -201,6 +223,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/admin-plans'
     | '/admin-tools'
     | '/admin-workouts'
     | '/coach'
@@ -208,6 +231,7 @@ export interface FileRouteTypes {
     | '/delete-account'
     | '/grocery'
     | '/login'
+    | '/my-plan'
     | '/planner'
     | '/privacy'
     | '/workouts'
@@ -220,6 +244,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  AdminPlansRoute: typeof AdminPlansRoute
   AdminToolsRoute: typeof AdminToolsRoute
   AdminWorkoutsRoute: typeof AdminWorkoutsRoute
   CoachRoute: typeof CoachRoute
@@ -227,6 +252,7 @@ export interface RootRouteChildren {
   DeleteAccountRoute: typeof DeleteAccountRoute
   GroceryRoute: typeof GroceryRoute
   LoginRoute: typeof LoginRoute
+  MyPlanRoute: typeof MyPlanRoute
   PlannerRoute: typeof PlannerRoute
   PrivacyRoute: typeof PrivacyRoute
   WorkoutsRoute: typeof WorkoutsRoute
@@ -255,6 +281,13 @@ declare module '@tanstack/react-router' {
       path: '/planner'
       fullPath: '/planner'
       preLoaderRoute: typeof PlannerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-plan': {
+      id: '/my-plan'
+      path: '/my-plan'
+      fullPath: '/my-plan'
+      preLoaderRoute: typeof MyPlanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -304,6 +337,13 @@ declare module '@tanstack/react-router' {
       path: '/admin-tools'
       fullPath: '/admin-tools'
       preLoaderRoute: typeof AdminToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-plans': {
+      id: '/admin-plans'
+      path: '/admin-plans'
+      fullPath: '/admin-plans'
+      preLoaderRoute: typeof AdminPlansRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -367,6 +407,7 @@ const CoursesRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  AdminPlansRoute: AdminPlansRoute,
   AdminToolsRoute: AdminToolsRoute,
   AdminWorkoutsRoute: AdminWorkoutsRoute,
   CoachRoute: CoachRoute,
@@ -374,6 +415,7 @@ const rootRouteChildren: RootRouteChildren = {
   DeleteAccountRoute: DeleteAccountRoute,
   GroceryRoute: GroceryRoute,
   LoginRoute: LoginRoute,
+  MyPlanRoute: MyPlanRoute,
   PlannerRoute: PlannerRoute,
   PrivacyRoute: PrivacyRoute,
   WorkoutsRoute: WorkoutsRoute,
@@ -383,12 +425,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

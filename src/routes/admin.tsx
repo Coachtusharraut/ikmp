@@ -185,6 +185,9 @@ function AdminPage() {
         <Button asChild variant="outline">
           <Link to="/admin-workouts">Manage workouts →</Link>
         </Button>
+        <Button asChild variant="outline">
+          <Link to="/admin-plans">Assign user plans →</Link>
+        </Button>
       </div>
 
       {/* Site settings */}
