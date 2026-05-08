@@ -8,6 +8,7 @@ import { ArrowLeft, CheckCircle2, Lock, FileText, BookOpen, CheckCircle } from "
 import { toast } from "sonner";
 import { Linkify } from "@/lib/linkify";
 import { openFile } from "@/lib/download-file";
+import { FileChip } from "@/components/PdfPreview";
 
 export const Route = createFileRoute("/courses/$id")({
   component: CourseDetail,
