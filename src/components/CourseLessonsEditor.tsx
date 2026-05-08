@@ -280,6 +280,8 @@ export function CourseLessonsEditor({
 function LessonFiles({ lessonId }: { lessonId: string }) {
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkName, setLinkName] = useState("");
   const { data: files = [] } = useQuery({
     queryKey: ["lesson_files", lessonId],
     queryFn: async () => {
