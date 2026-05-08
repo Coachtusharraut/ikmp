@@ -7,6 +7,7 @@ import { ProtectedVideo } from "@/components/ProtectedVideo";
 import { ArrowLeft, CheckCircle2, Lock, FileText, BookOpen, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Linkify } from "@/lib/linkify";
+import { openFile } from "@/lib/download-file";
 
 export const Route = createFileRoute("/courses/$id")({
   component: CourseDetail,
