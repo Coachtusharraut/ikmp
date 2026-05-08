@@ -114,6 +114,29 @@ export function CourseFilesEditor({ courseId }: { courseId: string }) {
           />
         </label>
       </div>
+      <div className="flex flex-wrap items-end gap-2 pt-2 border-t">
+        <div className="flex-1 min-w-[180px]">
+          <Label className="text-xs">Or paste a link (PDF, video, drive, etc.)</Label>
+          <Input
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+            placeholder="https://…"
+            className="mt-1 h-8"
+          />
+        </div>
+        <div className="w-40">
+          <Label className="text-xs">Display name (optional)</Label>
+          <Input
+            value={linkName}
+            onChange={(e) => setLinkName(e.target.value)}
+            placeholder="e.g. Workbook PDF"
+            className="mt-1 h-8"
+          />
+        </div>
+        <Button type="button" size="sm" variant="outline" onClick={addLink} disabled={!linkUrl.trim()}>
+          <Link2 className="size-3.5 mr-1" /> Add link
+        </Button>
+      </div>
     </div>
   );
 }
