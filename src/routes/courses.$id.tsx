@@ -7,6 +7,7 @@ import { ProtectedVideo } from "@/components/ProtectedVideo";
 import { ArrowLeft, CheckCircle2, Lock, FileText, BookOpen, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Linkify } from "@/lib/linkify";
+import { openFile } from "@/lib/download-file";
 
 export const Route = createFileRoute("/courses/$id")({
   component: CourseDetail,
@@ -290,15 +291,14 @@ function CourseDetail() {
           </div>
           <div className="flex flex-wrap gap-2">
             {courseFiles.map((f) => (
-              <a
+              <button
                 key={f.id}
-                href={f.file_url}
-                target="_blank"
-                rel="noreferrer"
+                type="button"
+                onClick={() => openFile(f.file_url, f.name)}
                 className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border hover:bg-accent transition"
               >
                 <FileText className="size-3.5" /> {f.name}
-              </a>
+              </button>
             ))}
           </div>
         </div>
@@ -429,15 +429,14 @@ function CourseDetail() {
                                   </div>
                                   <div className="flex flex-wrap gap-2">
                                     {lessonFiles.map((f) => (
-                                      <a
+                                      <button
                                         key={f.id}
-                                        href={f.file_url}
-                                        target="_blank"
-                                        rel="noreferrer"
+                                        type="button"
+                                        onClick={() => openFile(f.file_url, f.name)}
                                         className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border hover:bg-accent transition"
                                       >
                                         <FileText className="size-3.5" /> {f.name}
-                                      </a>
+                                      </button>
                                     ))}
                                   </div>
                                 </div>
