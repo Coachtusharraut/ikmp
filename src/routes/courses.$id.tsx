@@ -423,14 +423,7 @@ function CourseDetail() {
                                   </div>
                                   <div className="flex flex-wrap gap-2">
                                     {lessonFiles.map((f) => (
-                                      <button
-                                        key={f.id}
-                                        type="button"
-                                        onClick={() => openFile(f.file_url, f.name)}
-                                        className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border hover:bg-accent transition"
-                                      >
-                                        <FileText className="size-3.5" /> {f.name}
-                                      </button>
+                                      <FileChip key={f.id} url={f.file_url} name={f.name} />
                                     ))}
                                   </div>
                                 </div>
