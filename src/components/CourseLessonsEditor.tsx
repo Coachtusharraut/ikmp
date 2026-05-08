@@ -326,41 +326,76 @@ function LessonFiles({ lessonId }: { lessonId: string }) {
     qc.invalidateQueries({ queryKey: ["lesson_files", lessonId] });
   }
 
+  async function addLink() {
+    const url = linkUrl.trim();
+    if (!url) return toast.error("Paste a URL first");
+    const name = linkName.trim() || (() => {
+      try { return decodeURIComponent(new URL(url).pathname.split("/").pop() || url); }
+      catch { return url; }
+    })();
+    const { error } = await supabase
+      .from("course_lesson_files")
+      .insert({ lesson_id: lessonId, name, file_url: url });
+    if (error) return toast.error(error.message);
+    setLinkUrl(""); setLinkName("");
+    qc.invalidateQueries({ queryKey: ["lesson_files", lessonId] });
+    toast.success("Link added");
+  }
+
   return (
-    <div className="mt-2 flex flex-wrap items-center gap-2">
-      {files.length === 0 && (
-        <span className="text-xs text-muted-foreground px-2 py-1 rounded-full bg-muted/60">
-          No attachments yet
-        </span>
-      )}
-      {files.map((f) => (
-        <span
-          key={f.id}
-          className="inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded-full bg-muted"
-        >
-          <FileText className="size-3" />
-          <a href={f.file_url} target="_blank" rel="noreferrer" className="hover:underline">
-            {f.name}
-          </a>
-          <button onClick={() => remove(f)} className="text-destructive hover:opacity-100 opacity-60">
-            <X className="size-3" />
-          </button>
-        </span>
-      ))}
-      <label className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border cursor-pointer hover:bg-accent">
-        <Upload className="size-3" />
-        {busy ? "Uploading…" : "Attach file(s)"}
-        <input
-          type="file"
-          multiple
-          className="hidden"
-          disabled={busy}
-          onChange={(e) => {
-            if (e.target.files && e.target.files.length > 0) uploadMany(e.target.files);
-            e.currentTarget.value = "";
-          }}
+    <div className="mt-2 space-y-2">
+      <div className="flex flex-wrap items-center gap-2">
+        {files.length === 0 && (
+          <span className="text-xs text-muted-foreground px-2 py-1 rounded-full bg-muted/60">
+            No attachments yet
+          </span>
+        )}
+        {files.map((f) => (
+          <span
+            key={f.id}
+            className="inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded-full bg-muted"
+          >
+            <FileText className="size-3" />
+            <a href={f.file_url} target="_blank" rel="noreferrer" className="hover:underline">
+              {f.name}
+            </a>
+            <button onClick={() => remove(f)} className="text-destructive hover:opacity-100 opacity-60">
+              <X className="size-3" />
+            </button>
+          </span>
+        ))}
+        <label className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border cursor-pointer hover:bg-accent">
+          <Upload className="size-3" />
+          {busy ? "Uploading…" : "Attach file(s)"}
+          <input
+            type="file"
+            multiple
+            className="hidden"
+            disabled={busy}
+            onChange={(e) => {
+              if (e.target.files && e.target.files.length > 0) uploadMany(e.target.files);
+              e.currentTarget.value = "";
+            }}
+          />
+        </label>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Input
+          value={linkUrl}
+          onChange={(e) => setLinkUrl(e.target.value)}
+          placeholder="Paste link (PDF / video / drive)"
+          className="h-8 flex-1 min-w-[180px] text-xs"
         />
-      </label>
+        <Input
+          value={linkName}
+          onChange={(e) => setLinkName(e.target.value)}
+          placeholder="Name (optional)"
+          className="h-8 w-40 text-xs"
+        />
+        <Button type="button" size="sm" variant="outline" onClick={addLink} disabled={!linkUrl.trim()}>
+          <Link2 className="size-3.5 mr-1" /> Add link
+        </Button>
+      </div>
     </div>
   );
 }
