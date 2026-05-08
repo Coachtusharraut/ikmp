@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Upload, FileText, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, FileText, X, Link2 } from "lucide-react";
 import { toast } from "sonner";
 
 export type Lesson = {
