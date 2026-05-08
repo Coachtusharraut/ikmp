@@ -58,6 +58,21 @@ export function CourseFilesEditor({ courseId }: { courseId: string }) {
     qc.invalidateQueries({ queryKey: ["course_files", courseId] });
   }
 
+  async function addLink() {
+    const url = linkUrl.trim();
+    if (!url) return toast.error("Paste a URL first");
+    const name = linkName.trim() || (() => {
+      try { return decodeURIComponent(new URL(url).pathname.split("/").pop() || url); }
+      catch { return url; }
+    })();
+    const { error } = await (supabase as any)
+      .from("course_files")
+      .insert({ course_id: courseId, name, file_url: url });
+    if (error) return toast.error(error.message);
+    setLinkUrl(""); setLinkName("");
+    qc.invalidateQueries({ queryKey: ["course_files", courseId] });
+    toast.success("Link added");
+  }
   return (
     <div className="space-y-2">
       <Label>Attachments & resources</Label>
