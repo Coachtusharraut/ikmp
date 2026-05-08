@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Upload, X } from "lucide-react";
+import { FileText, Upload, X, Link2 } from "lucide-react";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 type CourseFile = { id: string; course_id: string; name: string; file_url: string };
 
 export function CourseFilesEditor({ courseId }: { courseId: string }) {
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
-
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkName, setLinkName] = useState("");
   const { data: files = [] } = useQuery({
     queryKey: ["course_files", courseId],
     queryFn: async () => {
@@ -55,6 +58,21 @@ export function CourseFilesEditor({ courseId }: { courseId: string }) {
     qc.invalidateQueries({ queryKey: ["course_files", courseId] });
   }
 
+  async function addLink() {
+    const url = linkUrl.trim();
+    if (!url) return toast.error("Paste a URL first");
+    const name = linkName.trim() || (() => {
+      try { return decodeURIComponent(new URL(url).pathname.split("/").pop() || url); }
+      catch { return url; }
+    })();
+    const { error } = await (supabase as any)
+      .from("course_files")
+      .insert({ course_id: courseId, name, file_url: url });
+    if (error) return toast.error(error.message);
+    setLinkUrl(""); setLinkName("");
+    qc.invalidateQueries({ queryKey: ["course_files", courseId] });
+    toast.success("Link added");
+  }
   return (
     <div className="space-y-2">
       <Label>Attachments & resources</Label>
@@ -95,6 +113,29 @@ export function CourseFilesEditor({ courseId }: { courseId: string }) {
             }}
           />
         </label>
+      </div>
+      <div className="flex flex-wrap items-end gap-2 pt-2 border-t">
+        <div className="flex-1 min-w-[180px]">
+          <Label className="text-xs">Or paste a link (PDF, video, drive, etc.)</Label>
+          <Input
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+            placeholder="https://…"
+            className="mt-1 h-8"
+          />
+        </div>
+        <div className="w-40">
+          <Label className="text-xs">Display name (optional)</Label>
+          <Input
+            value={linkName}
+            onChange={(e) => setLinkName(e.target.value)}
+            placeholder="e.g. Workbook PDF"
+            className="mt-1 h-8"
+          />
+        </div>
+        <Button type="button" size="sm" variant="outline" onClick={addLink} disabled={!linkUrl.trim()}>
+          <Link2 className="size-3.5 mr-1" /> Add link
+        </Button>
       </div>
     </div>
   );
