@@ -12,7 +12,8 @@ type CourseFile = { id: string; course_id: string; name: string; file_url: strin
 export function CourseFilesEditor({ courseId }: { courseId: string }) {
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
-
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkName, setLinkName] = useState("");
   const { data: files = [] } = useQuery({
     queryKey: ["course_files", courseId],
     queryFn: async () => {
