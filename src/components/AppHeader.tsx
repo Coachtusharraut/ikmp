@@ -63,6 +63,15 @@ export function AppHeader() {
                     Courses
                   </Link>
                 </SheetClose>
+                <SheetClose asChild>
+                  <Link
+                    to="/live"
+                    className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent flex items-center gap-2"
+                    activeProps={{ className: "px-3 py-2 rounded-md text-sm bg-spice text-spice-foreground font-semibold shadow-sm flex items-center gap-2" }}
+                  >
+                    <Video className="size-4" /> Live sessions
+                  </Link>
+                </SheetClose>
                 {user && (
                   <>
                     <SheetClose asChild>
