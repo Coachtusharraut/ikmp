@@ -353,6 +353,48 @@ export type Database = {
         }
         Relationships: []
       }
+      live_sessions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          duration_min: number
+          host: string | null
+          id: string
+          is_published: boolean
+          join_url: string
+          scheduled_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_min?: number
+          host?: string | null
+          id?: string
+          is_published?: boolean
+          join_url: string
+          scheduled_at: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration_min?: number
+          host?: string | null
+          id?: string
+          is_published?: boolean
+          join_url?: string
+          scheduled_at?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       meal_plan_items: {
         Row: {
           created_at: string

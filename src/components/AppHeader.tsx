@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth";
 import { useSiteSettings } from "@/lib/site-settings";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { ChefHat, LogOut, ShieldCheck, Menu, GraduationCap, Sparkles, Dumbbell } from "lucide-react";
+import { ChefHat, LogOut, ShieldCheck, Menu, GraduationCap, Sparkles, Dumbbell, Video } from "lucide-react";
 import { PushSubscribeButton } from "@/components/PushSubscribeButton";
 
 export function AppHeader() {
@@ -61,6 +61,15 @@ export function AppHeader() {
                     activeProps={{ className: "px-3 py-2 rounded-md text-sm bg-spice text-spice-foreground font-semibold shadow-sm" }}
                   >
                     Courses
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link
+                    to="/live"
+                    className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent flex items-center gap-2"
+                    activeProps={{ className: "px-3 py-2 rounded-md text-sm bg-spice text-spice-foreground font-semibold shadow-sm flex items-center gap-2" }}
+                  >
+                    <Video className="size-4" /> Live sessions
                   </Link>
                 </SheetClose>
                 {user && (
@@ -179,6 +188,13 @@ export function AppHeader() {
             activeProps={{ className: "px-3 py-1.5 rounded-full text-sm bg-spice text-spice-foreground font-semibold shadow-sm flex items-center gap-1" }}
           >
             <GraduationCap className="size-4" /> Courses
+          </Link>
+          <Link
+            to="/live"
+            className="px-3 py-1.5 rounded-full text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition flex items-center gap-1"
+            activeProps={{ className: "px-3 py-1.5 rounded-full text-sm bg-spice text-spice-foreground font-semibold shadow-sm flex items-center gap-1" }}
+          >
+            <Video className="size-4" /> Live
           </Link>
           {user && (
             <>
