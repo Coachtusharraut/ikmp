@@ -189,6 +189,13 @@ export function AppHeader() {
           >
             <GraduationCap className="size-4" /> Courses
           </Link>
+          <Link
+            to="/live"
+            className="px-3 py-1.5 rounded-full text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition flex items-center gap-1"
+            activeProps={{ className: "px-3 py-1.5 rounded-full text-sm bg-spice text-spice-foreground font-semibold shadow-sm flex items-center gap-1" }}
+          >
+            <Video className="size-4" /> Live
+          </Link>
           {user && (
             <>
               <Link
