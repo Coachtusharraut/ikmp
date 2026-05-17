@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth";
 import { useSiteSettings } from "@/lib/site-settings";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { ChefHat, LogOut, ShieldCheck, Menu, GraduationCap, Sparkles, Dumbbell } from "lucide-react";
+import { ChefHat, LogOut, ShieldCheck, Menu, GraduationCap, Sparkles, Dumbbell, Video } from "lucide-react";
 import { PushSubscribeButton } from "@/components/PushSubscribeButton";
 
 export function AppHeader() {
