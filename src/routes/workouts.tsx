@@ -87,7 +87,7 @@ function WorkoutsPage() {
         <div className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] text-spice mb-3 px-3 py-1.5 rounded-full bg-card border border-border/60">
           <Dumbbell className="size-3" /> Workouts
         </div>
-        <h1 className="font-display text-4xl md:text-5xl font-light tracking-tight">
+        <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-light tracking-tight">
           Move with intention
         </h1>
         <p className="mt-3 text-muted-foreground max-w-xl">

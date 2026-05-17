@@ -92,7 +92,7 @@ function RecipeDetail() {
             <span className="text-xs uppercase tracking-wider px-2 py-1 rounded-full bg-accent text-accent-foreground">
               {recipe.category}
             </span>
-            <h1 className="mt-4 font-display text-4xl md:text-5xl font-semibold leading-tight">
+            <h1 className="mt-4 font-display text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight">
               {recipe.name}
             </h1>
             {recipe.description && (

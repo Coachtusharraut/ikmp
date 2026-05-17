@@ -57,7 +57,7 @@ function CoursesPage() {
         <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-spice mb-3">
           <GraduationCap className="size-3.5" /> Courses
         </div>
-        <h1 className="font-display text-4xl md:text-5xl font-semibold leading-tight">
+        <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight">
           Learn the Indian way to eat well
         </h1>
         <p className="mt-3 text-muted-foreground">

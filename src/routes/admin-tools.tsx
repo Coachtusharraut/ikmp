@@ -52,7 +52,7 @@ function AdminTools() {
         <ArrowLeft className="size-4" /> Back to admin
       </Link>
 
-      <h1 className="font-display text-4xl font-semibold mb-2">Admin tools</h1>
+      <h1 className="font-display text-3xl sm:text-4xl font-semibold mb-2">Admin tools</h1>
       <p className="text-sm text-muted-foreground mb-6">
         Manage users, send newsletters, and push notifications to your community.
       </p>

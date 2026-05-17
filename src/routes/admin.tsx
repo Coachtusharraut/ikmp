@@ -197,7 +197,7 @@ function AdminPage() {
             <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-spice mb-1">
               <Palette className="size-3.5" /> Branding
             </div>
-            <h1 className="font-display text-4xl font-semibold">Site settings</h1>
+            <h1 className="font-display text-3xl sm:text-4xl font-semibold">Site settings</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Customise the name, tagline, hero copy, logo, favicon and theme colours — applied across the entire site.
             </p>

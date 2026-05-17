@@ -78,7 +78,7 @@ function CoachStudio() {
         <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-spice mb-1">
           <Sparkles className="size-3.5" /> Coach Studio
         </div>
-        <h1 className="font-display text-4xl font-semibold">Your content</h1>
+        <h1 className="font-display text-3xl sm:text-4xl font-semibold">Your content</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Add new recipes and courses, edit your own, or request deletion (admin must approve).
         </p>

@@ -69,7 +69,7 @@ function AdminPlansPage() {
       >
         <ArrowLeft className="size-4" /> Back to admin
       </Link>
-      <h1 className="font-display text-4xl font-semibold mb-2">Assigned plans</h1>
+      <h1 className="font-display text-3xl sm:text-4xl font-semibold mb-2">Assigned plans</h1>
       <p className="text-sm text-muted-foreground mb-6">
         Pick a user to assign their meal + workout plan and view their progress.
       </p>

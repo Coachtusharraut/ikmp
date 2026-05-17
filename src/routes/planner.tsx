@@ -80,7 +80,7 @@ function Planner() {
           <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
             Week of
           </div>
-          <h1 className="font-display text-4xl font-semibold">{formatWeekRange(week)}</h1>
+          <h1 className="font-display text-3xl sm:text-4xl font-semibold">{formatWeekRange(week)}</h1>
         </div>
         <Button asChild className="bg-spice text-spice-foreground hover:bg-spice/90">
           <Link to="/grocery">
