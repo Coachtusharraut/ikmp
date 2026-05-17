@@ -76,7 +76,7 @@ function CoursesPage() {
           </p>
         </div>
       ) : isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="rounded-2xl border bg-card p-6 h-64 animate-pulse" />
           ))}
@@ -84,7 +84,7 @@ function CoursesPage() {
       ) : courses.length === 0 ? (
         <div className="text-muted-foreground">No courses yet.</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {courses.map((c) => (
             <Link
               key={c.id}
