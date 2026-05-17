@@ -23,28 +23,28 @@ export function WorkoutCard({ workout }: { workout: Workout }) {
           </div>
         )}
       </div>
-      <div className="p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
+      <div className="p-3 sm:p-4">
+        <div className="flex items-center gap-1.5 mb-1.5 sm:mb-2 flex-wrap">
+          <span className="text-[9px] sm:text-[10px] uppercase tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
             {workout.category}
           </span>
-          <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+          <span className="text-[9px] sm:text-[10px] uppercase tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
             {workout.level}
           </span>
         </div>
-        <h3 className="font-display text-lg font-semibold leading-tight mb-1 group-hover:text-spice transition-colors">
+        <h3 className="font-display text-sm sm:text-lg font-semibold leading-tight mb-1 group-hover:text-spice transition-colors line-clamp-2">
           {workout.name}
         </h3>
         {workout.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">{workout.description}</p>
+          <p className="hidden sm:block text-sm text-muted-foreground line-clamp-2">{workout.description}</p>
         )}
-        <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
+        <div className="mt-2 sm:mt-3 flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
-            <Clock className="size-3.5" /> {workout.duration_min} min
+            <Clock className="size-3 sm:size-3.5" /> {workout.duration_min}m
           </span>
           {workout.calories != null && (
             <span className="flex items-center gap-1">
-              <Flame className="size-3.5" /> {workout.calories} kcal
+              <Flame className="size-3 sm:size-3.5" /> {workout.calories}
             </span>
           )}
         </div>

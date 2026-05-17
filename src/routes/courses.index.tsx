@@ -57,7 +57,7 @@ function CoursesPage() {
         <div className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-spice mb-3">
           <GraduationCap className="size-3.5" /> Courses
         </div>
-        <h1 className="font-display text-4xl md:text-5xl font-semibold leading-tight">
+        <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight">
           Learn the Indian way to eat well
         </h1>
         <p className="mt-3 text-muted-foreground">
@@ -76,7 +76,7 @@ function CoursesPage() {
           </p>
         </div>
       ) : isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="rounded-2xl border bg-card p-6 h-64 animate-pulse" />
           ))}
@@ -84,7 +84,7 @@ function CoursesPage() {
       ) : courses.length === 0 ? (
         <div className="text-muted-foreground">No courses yet.</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {courses.map((c) => (
             <Link
               key={c.id}

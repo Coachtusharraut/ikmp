@@ -63,7 +63,7 @@ function WorkoutDetail() {
                 {workout.level}
               </span>
             </div>
-            <h1 className="mt-4 font-display text-4xl md:text-5xl font-semibold leading-tight">
+            <h1 className="mt-4 font-display text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight">
               {workout.name}
             </h1>
             {workout.description && (

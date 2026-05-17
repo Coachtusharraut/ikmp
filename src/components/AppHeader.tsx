@@ -150,16 +150,16 @@ export function AppHeader() {
               <img
                 src={settings.logo_url}
                 alt={settings.site_name}
-                className="size-9 rounded-xl object-cover shadow-sm"
+                className="size-8 sm:size-9 rounded-xl object-cover shadow-sm shrink-0"
               />
             ) : (
-              <div className="size-9 rounded-xl bg-spice text-spice-foreground grid place-items-center shadow-sm">
-                <ChefHat className="size-5" />
+              <div className="size-8 sm:size-9 rounded-xl bg-spice text-spice-foreground grid place-items-center shadow-sm shrink-0">
+                <ChefHat className="size-4 sm:size-5" />
               </div>
             )}
-            <div className="leading-tight">
-              <div className="font-display text-base sm:text-lg font-semibold">{settings.site_name}</div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground -mt-0.5">
+            <div className="leading-tight min-w-0">
+              <div className="font-display text-sm sm:text-lg font-semibold truncate">{settings.site_name}</div>
+              <div className="hidden sm:block text-[10px] uppercase tracking-[0.18em] text-muted-foreground -mt-0.5 truncate">
                 {settings.tagline}
               </div>
             </div>

@@ -203,7 +203,7 @@ function MyPlanPage() {
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
           <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">My Plan</div>
-          <h1 className="font-display text-4xl font-semibold">{plan.name}</h1>
+          <h1 className="font-display text-3xl sm:text-4xl font-semibold">{plan.name}</h1>
           {plan.notes && (
             <p className="text-sm text-muted-foreground mt-2 max-w-prose whitespace-pre-wrap">
               {plan.notes}

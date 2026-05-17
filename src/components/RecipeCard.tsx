@@ -56,24 +56,24 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
           </div>
         )}
       </div>
-      <div className="p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
+      <div className="p-3 sm:p-4">
+        <div className="flex items-center gap-1.5 mb-1.5 sm:mb-2 flex-wrap">
+          <span className="text-[9px] sm:text-[10px] uppercase tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
             {recipe.category}
           </span>
         </div>
-        <h3 className="font-display text-lg font-semibold leading-tight mb-1 group-hover:text-spice transition-colors">
+        <h3 className="font-display text-sm sm:text-lg font-semibold leading-tight mb-1 group-hover:text-spice transition-colors line-clamp-2">
           {recipe.name}
         </h3>
         {recipe.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">{recipe.description}</p>
+          <p className="hidden sm:block text-sm text-muted-foreground line-clamp-2">{recipe.description}</p>
         )}
-        <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
+        <div className="mt-2 sm:mt-3 flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
-            <Clock className="size-3.5" /> {recipe.prep_time_min + recipe.cook_time_min} min
+            <Clock className="size-3 sm:size-3.5" /> {recipe.prep_time_min + recipe.cook_time_min}m
           </span>
           <span className="flex items-center gap-1">
-            <Users className="size-3.5" /> {recipe.default_servings}
+            <Users className="size-3 sm:size-3.5" /> {recipe.default_servings}
           </span>
         </div>
         {user && (
@@ -83,10 +83,11 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
             variant="outline"
             onClick={handleAdd}
             disabled={addToWeek.isPending}
-            className="mt-4 w-full hover:bg-spice hover:text-spice-foreground hover:border-spice"
+            className="mt-3 sm:mt-4 w-full h-8 sm:h-9 text-xs sm:text-sm hover:bg-spice hover:text-spice-foreground hover:border-spice"
           >
             <CalendarPlus className="size-3.5 mr-1.5" />
-            {addToWeek.isPending ? "Adding…" : "Add to this week"}
+            <span className="hidden sm:inline">{addToWeek.isPending ? "Adding…" : "Add to this week"}</span>
+            <span className="sm:hidden">{addToWeek.isPending ? "Adding…" : "Add"}</span>
           </Button>
         )}
       </div>

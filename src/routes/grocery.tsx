@@ -88,7 +88,7 @@ function Grocery() {
           <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
             Grocery list · {formatWeekRange(week)}
           </div>
-          <h1 className="font-display text-4xl font-semibold">Your week's shopping</h1>
+          <h1 className="font-display text-3xl sm:text-4xl font-semibold">Your week's shopping</h1>
         </div>
         <Button variant="outline" onClick={() => window.print()}>
           <Printer className="size-4 mr-2" /> Print

@@ -108,7 +108,7 @@ function Home() {
             <div className="inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.2em] text-spice mb-5 px-3 py-1.5 rounded-full bg-card/60 backdrop-blur border border-border/60">
               <Sparkles className="size-3" /> {settings.site_name} · {settings.tagline}
             </div>
-            <h1 className="font-display text-5xl md:text-7xl font-light leading-[1.02] tracking-[-0.03em]">
+            <h1 className="font-display text-4xl sm:text-5xl md:text-7xl font-light leading-[1.02] tracking-[-0.03em]">
               {settings.hero_title}
             </h1>
             <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
@@ -211,7 +211,7 @@ function Home() {
         ) : filtered.length === 0 ? (
           <div className="text-muted-foreground">No recipes found.</div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
             {filtered.map((r) => (
               <RecipeCard key={r.id} recipe={r} />
             ))}
