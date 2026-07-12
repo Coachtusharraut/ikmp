@@ -716,6 +716,9 @@ type SiteSettingsRow = {
   intro_video_type: "youtube" | "upload";
   intro_title: string;
   intro_subtitle: string;
+  upi_id: string | null;
+  upi_qr_url: string | null;
+  payment_instructions: string | null;
 };
 
 function SiteSettingsManager() {
