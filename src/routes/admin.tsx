@@ -944,6 +944,7 @@ function SiteSettingsManager() {
         </div>
       </div>
 
+      <div>
         <Label className="mb-2 block">Theme colours (oklch values)</Label>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <ColorField label="Background" value={s.background_color} onChange={(v) => up("background_color", v)} />
