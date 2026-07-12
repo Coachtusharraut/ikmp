@@ -1,10 +1,21 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { ProtectedVideo } from "@/components/ProtectedVideo";
-import { ArrowLeft, CheckCircle2, Lock, FileText, BookOpen, CheckCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Lock, FileText, BookOpen, CheckCircle, Ticket, Clock, IndianRupee, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { Linkify } from "@/lib/linkify";
 import { openFile } from "@/lib/download-file";
@@ -13,6 +24,7 @@ import { FileChip } from "@/components/PdfPreview";
 export const Route = createFileRoute("/courses/$id")({
   component: CourseDetail,
 });
+
 
 type Course = {
   id: string;
