@@ -15,9 +15,9 @@ import {
   listAllUsers,
   toggleUserRole,
   deleteUser,
-} from "@/server/admin.functions";
-import { sendNewsletter } from "@/server/newsletter.functions";
-import { sendPushToAll } from "@/server/push.functions";
+} from "@/lib/admin.functions";
+import { sendNewsletter } from "@/lib/newsletter.functions";
+import { sendPushToAll } from "@/lib/push.functions";
 
 export const Route = createFileRoute("/admin-tools")({
   component: AdminTools,

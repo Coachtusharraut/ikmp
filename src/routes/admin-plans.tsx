@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Plus, Trash2, Search, ChefHat, Dumbbell, Activity } from "lucide-react";
 import { toast } from "sonner";
-import { listAllUsers } from "@/server/admin.functions";
+import { listAllUsers } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin-plans")({
   component: AdminPlansPage,

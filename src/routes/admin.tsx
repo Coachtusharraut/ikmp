@@ -188,6 +188,9 @@ function AdminPage() {
         <Button asChild variant="outline">
           <Link to="/admin-plans">Assign user plans →</Link>
         </Button>
+        <Button asChild variant="outline">
+          <Link to="/admin-coupons">Coupons & payments →</Link>
+        </Button>
       </div>
 
       {/* Site settings */}
@@ -716,6 +719,9 @@ type SiteSettingsRow = {
   intro_video_type: "youtube" | "upload";
   intro_title: string;
   intro_subtitle: string;
+  upi_id: string | null;
+  upi_qr_url: string | null;
+  payment_instructions: string | null;
 };
 
 function SiteSettingsManager() {
@@ -904,6 +910,42 @@ function SiteSettingsManager() {
         </div>
       </div>
 
+      {/* Payment settings */}
+      <div className="rounded-xl border bg-background/50 p-5 space-y-4">
+        <div>
+          <Label className="text-base font-semibold">Payment details (shown at course checkout)</Label>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Users pay via UPI (GPay / Paytm / PhonePe / BHIM) or card, then submit the transaction reference. You approve enrolments from Admin tools.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label>UPI ID</Label>
+            <Input
+              value={s.upi_id ?? ""}
+              onChange={(e) => up("upi_id", e.target.value || null)}
+              placeholder="yourname@upi"
+              className="mt-1.5"
+            />
+          </div>
+          <AssetField
+            label="UPI QR image (optional)"
+            url={s.upi_qr_url}
+            onChangeUrl={(v) => up("upi_qr_url", v)}
+            onUpload={(f) => uploadAsset(f, "logo").then((url) => url && up("upi_qr_url", url))}
+          />
+          <div className="md:col-span-2">
+            <Label>Payment instructions</Label>
+            <Textarea
+              value={s.payment_instructions ?? ""}
+              onChange={(e) => up("payment_instructions", e.target.value || null)}
+              placeholder="e.g. Pay via GPay / Paytm / PhonePe to the UPI ID above. Cards accepted — DM after paying. Include your name in the transaction note."
+              rows={4}
+              className="mt-1.5"
+            />
+          </div>
+        </div>
+      </div>
 
       <div>
         <Label className="mb-2 block">Theme colours (oklch values)</Label>

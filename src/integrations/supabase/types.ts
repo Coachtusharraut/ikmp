@@ -68,28 +68,99 @@ export type Database = {
         }
         Relationships: []
       }
+      coupons: {
+        Row: {
+          active: boolean
+          code: string
+          course_id: string | null
+          created_at: string
+          created_by: string | null
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          max_uses: number | null
+          notes: string | null
+          updated_at: string
+          uses_count: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          course_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          discount_type: string
+          discount_value: number
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          notes?: string | null
+          updated_at?: string
+          uses_count?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          course_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          notes?: string | null
+          updated_at?: string
+          uses_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_enrollments: {
         Row: {
           amount_paid: number
+          approved_at: string | null
+          approved_by: string | null
+          coupon_code: string | null
           course_id: string
           enrolled_at: string
           id: string
+          payment_method: string | null
+          payment_reference: string | null
           payment_status: string
           user_id: string
         }
         Insert: {
           amount_paid?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          coupon_code?: string | null
           course_id: string
           enrolled_at?: string
           id?: string
+          payment_method?: string | null
+          payment_reference?: string | null
           payment_status?: string
           user_id: string
         }
         Update: {
           amount_paid?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          coupon_code?: string | null
           course_id?: string
           enrolled_at?: string
           id?: string
+          payment_method?: string | null
+          payment_reference?: string | null
           payment_status?: string
           user_id?: string
         }
@@ -697,12 +768,15 @@ export type Database = {
           intro_video_url: string | null
           logo_url: string | null
           meta_description: string
+          payment_instructions: string | null
           primary_color: string
           singleton: boolean
           site_name: string
           spice_color: string
           tagline: string
           updated_at: string
+          upi_id: string | null
+          upi_qr_url: string | null
         }
         Insert: {
           accent_color?: string
@@ -721,12 +795,15 @@ export type Database = {
           intro_video_url?: string | null
           logo_url?: string | null
           meta_description?: string
+          payment_instructions?: string | null
           primary_color?: string
           singleton?: boolean
           site_name?: string
           spice_color?: string
           tagline?: string
           updated_at?: string
+          upi_id?: string | null
+          upi_qr_url?: string | null
         }
         Update: {
           accent_color?: string
@@ -745,12 +822,15 @@ export type Database = {
           intro_video_url?: string | null
           logo_url?: string | null
           meta_description?: string
+          payment_instructions?: string | null
           primary_color?: string
           singleton?: boolean
           site_name?: string
           spice_color?: string
           tagline?: string
           updated_at?: string
+          upi_id?: string | null
+          upi_qr_url?: string | null
         }
         Relationships: []
       }
@@ -1065,6 +1145,14 @@ export type Database = {
         Returns: boolean
       }
       is_main_admin: { Args: { _user_id: string }; Returns: boolean }
+      redeem_coupon: {
+        Args: { _code: string; _course_id: string }
+        Returns: {
+          enrollment_id: string
+          final_price: number
+          status: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "user" | "coach"
