@@ -7,7 +7,7 @@ import {
   getVapidPublicKey,
   saveSubscription,
   removeSubscription,
-} from "@/server/push.functions";
+} from "@/lib/push.functions";
 import { useAuth } from "@/lib/auth";
 
 function urlBase64ToUint8Array(base64String: string) {
