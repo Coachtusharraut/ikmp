@@ -281,22 +281,24 @@ function CourseDetail() {
             title={course.title}
           />
         ) : !canWatch ? (
-          <div className="aspect-video rounded-2xl border bg-card grid place-items-center text-center p-8">
-            <div>
-              <Lock className="size-10 mx-auto text-muted-foreground mb-3" />
-              <h2 className="font-display text-xl font-semibold">
-                Enroll to access this course
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                ₹{course.price} — payment setup coming soon
+          <div className="rounded-2xl border bg-card p-8 text-center">
+            <Lock className="size-10 mx-auto text-muted-foreground mb-3" />
+            <h2 className="font-display text-xl font-semibold">
+              {pending ? "Payment pending approval" : "Enrol to access this course"}
+            </h2>
+            {pending ? (
+              <p className="mt-2 text-sm text-muted-foreground">
+                <Clock className="inline size-3.5 mr-1" />
+                We've received your details. Access unlocks once the admin verifies your
+                payment. You'll get an announcement when it's approved.
               </p>
-              <Button disabled className="mt-4">
-                Enroll for ₹{course.price}
-              </Button>
-            </div>
+            ) : (
+              <CheckoutBox courseId={course.id} price={course.price} />
+            )}
           </div>
         ) : null}
       </div>
+
 
       {canWatch && courseFiles.length > 0 && (
         <div className="mt-6 rounded-2xl border bg-card p-5">
