@@ -91,17 +91,19 @@ function CourseDetail() {
       if (!user) return null;
       const { data } = await supabase
         .from("course_enrollments")
-        .select("id,payment_status")
+        .select("id,payment_status,amount_paid,coupon_code")
         .eq("course_id", id)
         .eq("user_id", user.id)
         .maybeSingle();
-      return data;
+      return data as { id: string; payment_status: string; amount_paid: number | null; coupon_code: string | null } | null;
     },
     enabled: !!user,
   });
 
-  const enrolled = !!enrollment;
+  const enrolled = !!enrollment && ["paid", "free", "coupon"].includes(enrollment.payment_status);
+  const pending = enrollment?.payment_status === "pending";
   const canWatch = !!course && (course.is_free || enrolled);
+
 
   const { data: lessons = [] } = useQuery({
     queryKey: ["lessons", id],
