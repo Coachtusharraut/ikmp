@@ -115,10 +115,17 @@ function Home() {
               {settings.hero_subtitle}
             </p>
             {!user && (
-              <div className="mt-8 flex gap-3">
-                <Button asChild size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full px-7 h-12 text-sm tracking-wide shadow-[var(--shadow-elegant)]">
-                  <Link to="/login">Start your week →</Link>
+              <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:items-center">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-spice text-spice-foreground hover:bg-spice/90 rounded-full px-8 h-14 text-base font-semibold tracking-wide shadow-[0_10px_40px_-10px_hsl(var(--spice)/0.6)] hover:shadow-[0_14px_50px_-10px_hsl(var(--spice)/0.75)] transition-shadow animate-in fade-in slide-in-from-bottom-2"
+                >
+                  <Link to="/login">Sign in to get started →</Link>
                 </Button>
+                <p className="text-sm text-muted-foreground">
+                  Free to join · takes less than a minute
+                </p>
               </div>
             )}
           </div>

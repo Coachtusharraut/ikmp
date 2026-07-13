@@ -105,3 +105,21 @@ export const sendNewsletter = createServerFn({ method: "POST" })
       emailNote,
     };
   });
+
+/**
+ * Removes all active announcement banners (unpublishes them).
+ * Use this when a newsletter accidentally posted a banner and you want to
+ * clear it from the home page for everyone.
+ */
+export const clearAnnouncementBanners = createServerFn({ method: "POST" })
+  .inputValidator((d) => z.object({ accessToken: z.string().min(1) }).parse(d))
+  .handler(async ({ data }) => {
+    await requireAdminFromAccessToken(data.accessToken);
+    const { error, count } = await supabaseAdmin
+      .from("announcements")
+      .update({ published: false }, { count: "exact" })
+      .eq("published", true);
+    if (error) throw new Error(error.message);
+    return { ok: true, cleared: count ?? 0 };
+  });
+
