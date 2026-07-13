@@ -16,7 +16,7 @@ import {
   toggleUserRole,
   deleteUser,
 } from "@/lib/admin.functions";
-import { sendNewsletter } from "@/lib/newsletter.functions";
+import { sendNewsletter, clearAnnouncementBanners } from "@/lib/newsletter.functions";
 import { sendPushToAll } from "@/lib/push.functions";
 
 export const Route = createFileRoute("/admin-tools")({
@@ -253,11 +253,13 @@ function UsersPanel() {
 // ============== NEWSLETTER ==============
 function NewsletterPanel() {
   const send = useServerFn(sendNewsletter);
+  const clearBanners = useServerFn(clearAnnouncementBanners);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [alsoEmail, setAlsoEmail] = useState(true);
-  const [alsoBanner, setAlsoBanner] = useState(true);
+  const [alsoBanner, setAlsoBanner] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [clearing, setClearing] = useState(false);
 
   async function submit() {
     if (!subject.trim() || !body.trim()) {
@@ -271,22 +273,19 @@ function NewsletterPanel() {
     if (!confirm("Send to all users?")) return;
     setBusy(true);
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData.session?.access_token;
-      if (!accessToken) throw new Error("Please sign in again to send newsletters.");
-      const res = await send({
-        data: {
-          subject,
-          bodyHtml: body,
-          alsoEmail,
-          alsoAnnouncement: alsoBanner,
-          accessToken,
-        },
-      });
-      toast.success(
-        `Sent. ${res.emailSent ? `${res.emailSent} emails.` : ""} ${res.emailNote ?? ""}`.trim(),
+      const accessToken = await getCurrentAccessToken(
+        "Please sign in again to send newsletters.",
       );
-      if (res.emailNote) toast.info(res.emailNote);
+      const res = await send({
+        data: { subject, bodyHtml: body, alsoEmail, alsoAnnouncement: alsoBanner, accessToken },
+      });
+      if (res.emailSent > 0) {
+        toast.success(`Newsletter emailed to ${res.emailSent} user${res.emailSent === 1 ? "" : "s"}.`);
+      } else if (alsoEmail) {
+        toast.error(res.emailNote ?? "Email could not be sent — set up a sender domain first.");
+      } else {
+        toast.success("Announcement banner posted.");
+      }
       setSubject("");
       setBody("");
     } catch (e: any) {
@@ -296,12 +295,33 @@ function NewsletterPanel() {
     }
   }
 
+  async function handleClearBanners() {
+    if (!confirm("Remove all active announcement banners from the site?")) return;
+    setClearing(true);
+    try {
+      const accessToken = await getCurrentAccessToken(
+        "Please sign in again to clear banners.",
+      );
+      const res = await clearBanners({ data: { accessToken } });
+      toast.success(
+        res.cleared > 0
+          ? `Cleared ${res.cleared} banner${res.cleared === 1 ? "" : "s"}.`
+          : "No active banners to clear.",
+      );
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setClearing(false);
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Send newsletter</CardTitle>
         <p className="text-sm text-muted-foreground mt-1">
-          Posts a banner on the home page for everyone, and (optionally) emails all users.
+          Emails all users directly. By default this does <span className="font-medium">not</span>{" "}
+          post a banner on the site.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -328,31 +348,41 @@ function NewsletterPanel() {
           <label className="inline-flex items-center gap-2">
             <input
               type="checkbox"
-              checked={alsoBanner}
-              onChange={(e) => setAlsoBanner(e.target.checked)}
+              checked={alsoEmail}
+              onChange={(e) => setAlsoEmail(e.target.checked)}
             />
-            Show as in-app banner
+            Send email to all users
           </label>
           <label className="inline-flex items-center gap-2">
             <input
               type="checkbox"
-              checked={alsoEmail}
-              onChange={(e) => setAlsoEmail(e.target.checked)}
+              checked={alsoBanner}
+              onChange={(e) => setAlsoBanner(e.target.checked)}
             />
-            Also send email
+            Also post an in-app banner
           </label>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Note: email delivery requires an email sender domain. If not set up yet, only the
-          banner is posted — set up in Cloud → Emails when ready.
-        </p>
-        <Button
-          disabled={busy}
-          onClick={submit}
-          className="bg-spice text-spice-foreground hover:bg-spice/90"
-        >
-          {busy ? "Sending…" : "Send to all users"}
-        </Button>
+        <div className="rounded-lg bg-muted/40 border p-3 text-xs text-muted-foreground">
+          Email delivery requires a sender domain (Cloud → Emails). If it isn't set up yet, email
+          sending will fail and no message will go out — enable a sender first, then send.
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            disabled={busy}
+            onClick={submit}
+            className="bg-spice text-spice-foreground hover:bg-spice/90"
+          >
+            {busy ? "Sending…" : "Send to all users"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={clearing}
+            onClick={handleClearBanners}
+          >
+            {clearing ? "Clearing…" : "Remove active banners"}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
