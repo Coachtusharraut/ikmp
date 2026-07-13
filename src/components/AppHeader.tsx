@@ -194,8 +194,8 @@ export function AppHeader() {
                   <ChefHat className="size-4 sm:size-5" />
                 </div>
               )}
-              <div className="leading-tight min-w-0 hidden xs:block sm:block">
-                <div className="font-display text-sm sm:text-base font-semibold truncate max-w-[140px] sm:max-w-none">
+              <div className="leading-tight min-w-0">
+                <div className="font-display text-sm sm:text-base font-semibold truncate max-w-[110px] sm:max-w-none">
                   {settings.site_name}
                 </div>
                 <div className="hidden md:block text-[10px] uppercase tracking-[0.18em] text-muted-foreground -mt-0.5 truncate">
