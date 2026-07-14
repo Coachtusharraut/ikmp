@@ -1,12 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { RecipeCard } from "@/components/RecipeCard";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Sparkles, PlayCircle } from "lucide-react";
-import type { Recipe } from "@/lib/types";
+import {
+  Sparkles,
+  PlayCircle,
+  UtensilsCrossed,
+  Dumbbell,
+  GraduationCap,
+  Video,
+  ClipboardList,
+  ArrowRight,
+} from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useSiteSettings } from "@/lib/site-settings";
 import { ProtectedVideo } from "@/components/ProtectedVideo";
@@ -15,79 +18,36 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-type SectionRow = { id: string; name: string; sort_order: number };
-type RecipeSectionLink = { recipe_id: string; section_id: string };
+const EXPLORE = [
+  {
+    to: "/recipes" as const,
+    label: "Recipes",
+    icon: UtensilsCrossed,
+    desc: "Curated Indian recipes for holistic health.",
+  },
+  {
+    to: "/workouts" as const,
+    label: "Workouts",
+    icon: Dumbbell,
+    desc: "Guided sessions you can do anywhere.",
+  },
+  {
+    to: "/courses" as const,
+    label: "Courses",
+    icon: GraduationCap,
+    desc: "Deep-dive programs to transform your habits.",
+  },
+  {
+    to: "/live" as const,
+    label: "Live",
+    icon: Video,
+    desc: "Join upcoming live sessions with the coach.",
+  },
+];
 
 function Home() {
   const { user } = useAuth();
   const settings = useSiteSettings();
-  const [q, setQ] = useState("");
-  const [cat, setCat] = useState<string>("All");
-
-  const { data: recipes = [], isLoading } = useQuery({
-    queryKey: ["recipes"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("recipes")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data as unknown as Recipe[];
-    },
-    enabled: !!user,
-  });
-
-  const { data: sections = [] } = useQuery({
-    queryKey: ["sections"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("sections")
-        .select("id,name,sort_order")
-        .order("sort_order", { ascending: true });
-      if (error) throw error;
-      return data as SectionRow[];
-    },
-    enabled: !!user,
-  });
-
-  const { data: links = [] } = useQuery({
-    queryKey: ["recipe_sections"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("recipe_sections")
-        .select("recipe_id,section_id");
-      if (error) throw error;
-      return data as RecipeSectionLink[];
-    },
-    enabled: !!user,
-  });
-
-  const sectionsByRecipe = useMemo(() => {
-    const map = new Map<string, Set<string>>();
-    links.forEach((l) => {
-      if (!map.has(l.recipe_id)) map.set(l.recipe_id, new Set());
-      map.get(l.recipe_id)!.add(l.section_id);
-    });
-    return map;
-  }, [links]);
-
-  const categories = useMemo(() => ["All", ...sections.map((s) => s.name)], [sections]);
-
-  const filtered = useMemo(() => {
-    const targetSection = sections.find((s) => s.name === cat);
-    return recipes.filter((r) => {
-      const okCat =
-        cat === "All" ||
-        (targetSection && sectionsByRecipe.get(r.id)?.has(targetSection.id)) ||
-        // legacy fallback for recipes still using the old single category text
-        r.category === cat;
-      const okQ =
-        !q ||
-        r.name.toLowerCase().includes(q.toLowerCase()) ||
-        r.description?.toLowerCase().includes(q.toLowerCase());
-      return okCat && okQ;
-    });
-  }, [recipes, sections, sectionsByRecipe, q, cat]);
 
   return (
     <div>
@@ -114,25 +74,42 @@ function Home() {
             <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
               {settings.hero_subtitle}
             </p>
-            {!user && (
-              <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:items-center">
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-spice text-spice-foreground hover:bg-spice/90 rounded-full px-8 h-14 text-base font-semibold tracking-wide shadow-[0_10px_40px_-10px_hsl(var(--spice)/0.6)] hover:shadow-[0_14px_50px_-10px_hsl(var(--spice)/0.75)] transition-shadow animate-in fade-in slide-in-from-bottom-2"
-                >
-                  <Link to="/login">Sign in to get started →</Link>
-                </Button>
-                <p className="text-sm text-muted-foreground">
-                  Free to join · takes less than a minute
-                </p>
-              </div>
-            )}
+            <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:items-center">
+              {user ? (
+                <>
+                  <Button
+                    asChild
+                    size="lg"
+                    className="bg-spice text-spice-foreground hover:bg-spice/90 rounded-full px-8 h-14 text-base font-semibold tracking-wide shadow-[0_10px_40px_-10px_hsl(var(--spice)/0.6)]"
+                  >
+                    <Link to="/my-plan">
+                      Continue to your plan <ArrowRight className="size-4 ml-1" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="ghost" size="lg" className="rounded-full">
+                    <Link to="/recipes">Browse recipes</Link>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    asChild
+                    size="lg"
+                    className="bg-spice text-spice-foreground hover:bg-spice/90 rounded-full px-8 h-14 text-base font-semibold tracking-wide shadow-[0_10px_40px_-10px_hsl(var(--spice)/0.6)] hover:shadow-[0_14px_50px_-10px_hsl(var(--spice)/0.75)] transition-shadow"
+                  >
+                    <Link to="/login">Sign in to get started →</Link>
+                  </Button>
+                  <p className="text-sm text-muted-foreground">
+                    Free to join · takes less than a minute
+                  </p>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Intro video — visible to everyone */}
+      {/* Intro video */}
       {settings.intro_video_url && (
         <section className="container mx-auto px-4 pt-4 pb-12">
           <div className="max-w-4xl mx-auto">
@@ -156,72 +133,66 @@ function Home() {
                 title={settings.intro_title}
               />
             </div>
-            {!user && (
-              <div className="mt-8 flex flex-col items-center gap-3">
-                <p className="text-sm text-muted-foreground">Ready to start? It only takes a minute.</p>
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-spice text-spice-foreground hover:bg-spice/90 rounded-full px-10 h-12 text-sm tracking-wide shadow-[var(--shadow-elegant)]"
-                >
-                  <Link to="/login">Sign in to get started →</Link>
-                </Button>
-              </div>
-            )}
           </div>
         </section>
       )}
 
-      {/* Library */}
+      {/* Explore */}
       <section className="container mx-auto px-4 pb-20">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <h2 className="font-display text-2xl font-semibold">Recipe library</h2>
-          <div className="relative w-full md:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search recipes…"
-              className="pl-9"
-            />
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <div className="text-[11px] font-medium uppercase tracking-[0.2em] text-spice mb-2">
+              Explore
+            </div>
+            <h2 className="font-display text-3xl md:text-4xl font-light tracking-tight">
+              Everything you need in one place
+            </h2>
           </div>
-        </div>
-
-        <div className="flex flex-wrap gap-2 mb-8">
-          {categories.map((c) => (
-            <button
-              key={c}
-              onClick={() => setCat(c)}
-              className={
-                "px-3 py-1.5 rounded-full text-xs font-medium transition border " +
-                (cat === c
-                  ? "bg-foreground text-background border-foreground"
-                  : "bg-card text-muted-foreground hover:text-foreground")
-              }
+          {user && (
+            <Link
+              to="/my-plan"
+              className="hidden sm:inline-flex items-center gap-1 text-sm text-spice hover:underline"
             >
-              {c}
-            </button>
+              <ClipboardList className="size-4" /> My Plan
+            </Link>
+          )}
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+          {EXPLORE.map((s) => (
+            <Link
+              key={s.to}
+              to={s.to}
+              className="group rounded-2xl border bg-card p-5 sm:p-6 hover:shadow-[var(--shadow-elegant)] hover:-translate-y-0.5 transition"
+            >
+              <div className="size-11 rounded-xl bg-spice/10 text-spice grid place-items-center mb-4 group-hover:bg-spice group-hover:text-spice-foreground transition">
+                <s.icon className="size-5" />
+              </div>
+              <div className="font-display text-lg font-semibold">{s.label}</div>
+              <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                {s.desc}
+              </p>
+              <div className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-spice">
+                Open <ArrowRight className="size-3 transition group-hover:translate-x-0.5" />
+              </div>
+            </Link>
           ))}
         </div>
 
-        {!user ? (
-          <div className="rounded-2xl border bg-card p-10 text-center">
-            <p className="text-muted-foreground">
-              <Link to="/login" className="text-spice underline underline-offset-4">
-                Sign in
-              </Link>{" "}
-              to browse recipes and start planning your week.
+        {!user && (
+          <div className="mt-10 rounded-3xl border bg-card p-8 sm:p-10 text-center">
+            <h3 className="font-display text-2xl md:text-3xl font-light">
+              Ready to start?
+            </h3>
+            <p className="text-muted-foreground mt-2">
+              Sign in to unlock recipes, plans and your weekly grocery list.
             </p>
-          </div>
-        ) : isLoading ? (
-          <div className="text-muted-foreground">Loading recipes…</div>
-        ) : filtered.length === 0 ? (
-          <div className="text-muted-foreground">No recipes found.</div>
-        ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
-            {filtered.map((r) => (
-              <RecipeCard key={r.id} recipe={r} />
-            ))}
+            <Button
+              asChild
+              size="lg"
+              className="mt-5 bg-spice text-spice-foreground hover:bg-spice/90 rounded-full px-10 h-12 shadow-[var(--shadow-elegant)]"
+            >
+              <Link to="/login">Sign in to get started →</Link>
+            </Button>
           </div>
         )}
       </section>
