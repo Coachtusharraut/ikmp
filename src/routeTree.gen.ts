@@ -23,6 +23,7 @@ import { Route as CoachRouteImport } from './routes/coach'
 import { Route as AdminWorkoutsRouteImport } from './routes/admin-workouts'
 import { Route as AdminToolsRouteImport } from './routes/admin-tools'
 import { Route as AdminPlansRouteImport } from './routes/admin-plans'
+import { Route as AdminNavRouteImport } from './routes/admin-nav'
 import { Route as AdminCouponsRouteImport } from './routes/admin-coupons'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -101,6 +102,11 @@ const AdminPlansRoute = AdminPlansRouteImport.update({
   path: '/admin-plans',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminNavRoute = AdminNavRouteImport.update({
+  id: '/admin-nav',
+  path: '/admin-nav',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminCouponsRoute = AdminCouponsRouteImport.update({
   id: '/admin-coupons',
   path: '/admin-coupons',
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/admin-coupons': typeof AdminCouponsRoute
+  '/admin-nav': typeof AdminNavRoute
   '/admin-plans': typeof AdminPlansRoute
   '/admin-tools': typeof AdminToolsRoute
   '/admin-workouts': typeof AdminWorkoutsRoute
@@ -164,6 +171,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/admin-coupons': typeof AdminCouponsRoute
+  '/admin-nav': typeof AdminNavRoute
   '/admin-plans': typeof AdminPlansRoute
   '/admin-tools': typeof AdminToolsRoute
   '/admin-workouts': typeof AdminWorkoutsRoute
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/admin-coupons': typeof AdminCouponsRoute
+  '/admin-nav': typeof AdminNavRoute
   '/admin-plans': typeof AdminPlansRoute
   '/admin-tools': typeof AdminToolsRoute
   '/admin-workouts': typeof AdminWorkoutsRoute
@@ -212,6 +221,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/admin-coupons'
+    | '/admin-nav'
     | '/admin-plans'
     | '/admin-tools'
     | '/admin-workouts'
@@ -235,6 +245,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/admin-coupons'
+    | '/admin-nav'
     | '/admin-plans'
     | '/admin-tools'
     | '/admin-workouts'
@@ -257,6 +268,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/admin-coupons'
+    | '/admin-nav'
     | '/admin-plans'
     | '/admin-tools'
     | '/admin-workouts'
@@ -281,6 +293,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AdminCouponsRoute: typeof AdminCouponsRoute
+  AdminNavRoute: typeof AdminNavRoute
   AdminPlansRoute: typeof AdminPlansRoute
   AdminToolsRoute: typeof AdminToolsRoute
   AdminWorkoutsRoute: typeof AdminWorkoutsRoute
@@ -399,6 +412,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPlansRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin-nav': {
+      id: '/admin-nav'
+      path: '/admin-nav'
+      fullPath: '/admin-nav'
+      preLoaderRoute: typeof AdminNavRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin-coupons': {
       id: '/admin-coupons'
       path: '/admin-coupons'
@@ -468,6 +488,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AdminCouponsRoute: AdminCouponsRoute,
+  AdminNavRoute: AdminNavRoute,
   AdminPlansRoute: AdminPlansRoute,
   AdminToolsRoute: AdminToolsRoute,
   AdminWorkoutsRoute: AdminWorkoutsRoute,
