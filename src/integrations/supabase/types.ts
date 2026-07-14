@@ -504,6 +504,42 @@ export type Database = {
           },
         ]
       }
+      nav_items: {
+        Row: {
+          created_at: string
+          href: string
+          icon: string
+          id: string
+          is_active: boolean
+          label: string
+          sort_order: number
+          updated_at: string
+          visibility: string
+        }
+        Insert: {
+          created_at?: string
+          href: string
+          icon?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          sort_order?: number
+          updated_at?: string
+          visibility?: string
+        }
+        Update: {
+          created_at?: string
+          href?: string
+          icon?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          sort_order?: number
+          updated_at?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
       newsletter_log: {
         Row: {
           also_announcement: boolean

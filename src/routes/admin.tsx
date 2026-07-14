@@ -191,6 +191,9 @@ function AdminPage() {
         <Button asChild variant="outline">
           <Link to="/admin-coupons">Coupons & payments →</Link>
         </Button>
+        <Button asChild variant="outline">
+          <Link to="/admin-nav">Navigation menu →</Link>
+        </Button>
       </div>
 
       {/* Site settings */}
