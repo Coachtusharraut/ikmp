@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkoutsRouteImport } from './routes/workouts'
+import { Route as RecipesRouteImport } from './routes/recipes'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlannerRouteImport } from './routes/planner'
 import { Route as MyPlanRouteImport } from './routes/my-plan'
@@ -33,6 +34,11 @@ import { Route as CoursesIdRouteImport } from './routes/courses.$id'
 const WorkoutsRoute = WorkoutsRouteImport.update({
   id: '/workouts',
   path: '/workouts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecipesRoute = RecipesRouteImport.update({
+  id: '/recipes',
+  path: '/recipes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/my-plan': typeof MyPlanRoute
   '/planner': typeof PlannerRoute
   '/privacy': typeof PrivacyRoute
+  '/recipes': typeof RecipesRoute
   '/workouts': typeof WorkoutsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
@@ -168,6 +175,7 @@ export interface FileRoutesByTo {
   '/my-plan': typeof MyPlanRoute
   '/planner': typeof PlannerRoute
   '/privacy': typeof PrivacyRoute
+  '/recipes': typeof RecipesRoute
   '/workouts': typeof WorkoutsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
@@ -191,6 +199,7 @@ export interface FileRoutesById {
   '/my-plan': typeof MyPlanRoute
   '/planner': typeof PlannerRoute
   '/privacy': typeof PrivacyRoute
+  '/recipes': typeof RecipesRoute
   '/workouts': typeof WorkoutsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/recipe/$id': typeof RecipeIdRoute
@@ -215,6 +224,7 @@ export interface FileRouteTypes {
     | '/my-plan'
     | '/planner'
     | '/privacy'
+    | '/recipes'
     | '/workouts'
     | '/courses/$id'
     | '/recipe/$id'
@@ -236,6 +246,7 @@ export interface FileRouteTypes {
     | '/my-plan'
     | '/planner'
     | '/privacy'
+    | '/recipes'
     | '/workouts'
     | '/courses/$id'
     | '/recipe/$id'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/my-plan'
     | '/planner'
     | '/privacy'
+    | '/recipes'
     | '/workouts'
     | '/courses/$id'
     | '/recipe/$id'
@@ -281,6 +293,7 @@ export interface RootRouteChildren {
   MyPlanRoute: typeof MyPlanRoute
   PlannerRoute: typeof PlannerRoute
   PrivacyRoute: typeof PrivacyRoute
+  RecipesRoute: typeof RecipesRoute
   WorkoutsRoute: typeof WorkoutsRoute
   RecipeIdRoute: typeof RecipeIdRoute
   WorkoutIdRoute: typeof WorkoutIdRoute
@@ -293,6 +306,13 @@ declare module '@tanstack/react-router' {
       path: '/workouts'
       fullPath: '/workouts'
       preLoaderRoute: typeof WorkoutsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recipes': {
+      id: '/recipes'
+      path: '/recipes'
+      fullPath: '/recipes'
+      preLoaderRoute: typeof RecipesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -460,6 +480,7 @@ const rootRouteChildren: RootRouteChildren = {
   MyPlanRoute: MyPlanRoute,
   PlannerRoute: PlannerRoute,
   PrivacyRoute: PrivacyRoute,
+  RecipesRoute: RecipesRoute,
   WorkoutsRoute: WorkoutsRoute,
   RecipeIdRoute: RecipeIdRoute,
   WorkoutIdRoute: WorkoutIdRoute,
