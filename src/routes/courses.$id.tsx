@@ -20,6 +20,12 @@ import { toast } from "sonner";
 import { Linkify } from "@/lib/linkify";
 import { openFile } from "@/lib/download-file";
 import { FileChip } from "@/components/PdfPreview";
+import {
+  getRazorpayConfig,
+  createCourseOrder,
+  verifyCoursePayment,
+} from "@/lib/razorpay.functions";
+
 
 export const Route = createFileRoute("/courses/$id")({
   component: CourseDetail,
