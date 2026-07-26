@@ -490,10 +490,80 @@ function CourseDetail() {
 
 /* ────────────── Checkout: coupon + direct payment ────────────── */
 
+function loadRazorpayScript(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") return resolve(false);
+    if ((window as any).Razorpay) return resolve(true);
+    const s = document.createElement("script");
+    s.src = "https://checkout.razorpay.com/v1/checkout.js";
+    s.onload = () => resolve(true);
+    s.onerror = () => resolve(false);
+    document.body.appendChild(s);
+  });
+}
+
 function CheckoutBox({ courseId, price }: { courseId: string; price: number }) {
   const qc = useQueryClient();
+  const { user } = useAuth();
   const [code, setCode] = useState("");
   const [payOpen, setPayOpen] = useState(false);
+
+  const { data: rzpConfig } = useQuery({
+    queryKey: ["razorpay_config"],
+    queryFn: () => getRazorpayConfig({ data: undefined as any }),
+    staleTime: 5 * 60_000,
+  });
+
+  const payNow = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error("Please sign in first");
+      const ok = await loadRazorpayScript();
+      if (!ok) throw new Error("Could not load the payment window. Check your connection.");
+
+      const order = await createCourseOrder({
+        data: { courseId, couponCode: code.trim() || null },
+      });
+
+      await new Promise<void>((resolve, reject) => {
+        const rzp = new (window as any).Razorpay({
+          key: rzpConfig?.keyId,
+          order_id: order.orderId,
+          amount: order.amount,
+          currency: order.currency,
+          name: "Course enrolment",
+          description: `₹${order.rupees}`,
+          prefill: { email: user.email ?? "" },
+          theme: { color: "#d95a2b" },
+          handler: async (resp: any) => {
+            try {
+              await verifyCoursePayment({
+                data: {
+                  courseId,
+                  razorpay_order_id: resp.razorpay_order_id,
+                  razorpay_payment_id: resp.razorpay_payment_id,
+                  razorpay_signature: resp.razorpay_signature,
+                },
+              });
+              resolve();
+            } catch (e: any) {
+              reject(new Error(e?.message ?? "Verification failed"));
+            }
+          },
+          modal: { ondismiss: () => reject(new Error("Payment cancelled")) },
+        });
+        rzp.on("payment.failed", (e: any) =>
+          reject(new Error(e?.error?.description ?? "Payment failed"))
+        );
+        rzp.open();
+      });
+    },
+    onSuccess: () => {
+      toast.success("Payment successful — course unlocked!");
+      qc.invalidateQueries({ queryKey: ["enrollment", courseId] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
 
   const { data: settings } = useQuery({
     queryKey: ["payment_settings"],
