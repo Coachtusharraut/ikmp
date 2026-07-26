@@ -653,12 +653,36 @@ function CheckoutBox({ courseId, price }: { courseId: string; price: number }) {
         </div>
       </div>
 
-      <Button
-        className="w-full bg-spice text-spice-foreground hover:bg-spice/90"
-        onClick={() => setPayOpen(true)}
-      >
-        Pay ₹{price} directly
-      </Button>
+      {rzpConfig?.enabled ? (
+        <div className="space-y-2">
+          <Button
+            size="lg"
+            className="w-full bg-spice text-spice-foreground hover:bg-spice/90"
+            onClick={() => payNow.mutate()}
+            disabled={payNow.isPending}
+          >
+            {payNow.isPending ? "Opening payment…" : `Pay ₹${price} & unlock instantly`}
+          </Button>
+          <p className="text-[11px] text-center text-muted-foreground">
+            UPI · GPay · PhonePe · Paytm · Cards · Netbanking · Wallets — access unlocks
+            automatically after payment.
+          </p>
+          <button
+            onClick={() => setPayOpen(true)}
+            className="w-full text-[11px] underline text-muted-foreground hover:text-foreground"
+          >
+            Or pay manually via UPI ID / QR
+          </button>
+        </div>
+      ) : (
+        <Button
+          className="w-full bg-spice text-spice-foreground hover:bg-spice/90"
+          onClick={() => setPayOpen(true)}
+        >
+          Pay ₹{price} directly
+        </Button>
+      )}
+
 
       <PaymentDialog
         open={payOpen}
