@@ -293,14 +293,18 @@ function CourseDetail() {
               {pending ? "Payment pending approval" : "Enrol to access this course"}
             </h2>
             {pending ? (
-              <p className="mt-2 text-sm text-muted-foreground">
-                <Clock className="inline size-3.5 mr-1" />
-                We've received your details. Access unlocks once the admin verifies your
-                payment. You'll get an announcement when it's approved.
-              </p>
+              <>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  <Clock className="inline size-3.5 mr-1" />
+                  We've received your details. Access unlocks once the admin verifies your
+                  payment. You'll get an announcement when it's approved.
+                </p>
+                <CheckoutBox courseId={course.id} price={course.price} />
+              </>
             ) : (
               <CheckoutBox courseId={course.id} price={course.price} />
             )}
+
           </div>
         ) : null}
       </div>
